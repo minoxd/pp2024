@@ -9,6 +9,6 @@ Students are expected to:
 Student Info
 =========================
 
-* Student Name: Nguyen At
+* Student Name: Nguyen Att
 * Student ID: 22BI13047
 
