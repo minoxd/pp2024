@@ -5,14 +5,11 @@ def select_class(selection, cur_num_class, list_class):
     while True:
         print("""
         AVAILABLE CLASSES
-
-[0] Exit
-[1] Select class
-[2] Add new class
-[3] Delete recent class
-[4] Update class
-[5] Display class
-        """)
+        
+[0] Exit""")
+        for i in range(cur_num_class):
+            print(f"[{i+1}] {list_class[i]}")
+        print("")
         try:
             option = int(input("Enter class: "))
         except ValueError:
@@ -20,25 +17,28 @@ def select_class(selection, cur_num_class, list_class):
             option = int(input("Enter class: "))
         if option == 0:
             return
-        if 0 < option < cur_num_class:
+        if 0 < option <= cur_num_class:
             selection = option
-            return
-    print("You selected ", list_class[selection-1])
+            break
+        print("Invalid option!")
+    print("You selected", list_class[selection-1])
 
 
 def new_class(cur_num_class, list_class):
     cur_num_class += 1
     s = "CLASS" + str(cur_num_class)
     list_class += [s]
-    print("Added", list_class[cur_num_class-1])
+    print("Added", list_class[cur_num_class - 1])
     return cur_num_class
 
 
-def makeClassOf(numOfStudents):
-    for i in range(numOfStudents):
-        studentID = input("Enter Student ID: ")
-        studentName = input("Enter Student Name: ")
-        studentDOB = input("Enter Student DOB: ")
+def delete_class(cur_num_class, list_class):
+    if cur_num_class is None or cur_num_class < 1:
+        print("There is no class.")
+        return
+    print("Deleted", list_class[cur_num_class - 1])
+    del list_class[cur_num_class - 1]
+    return cur_num_class - 1
 
 
 def home_option(classes, num_class, selected_class):
@@ -49,7 +49,7 @@ def home_option(classes, num_class, selected_class):
 [0] Exit
 [1] Select class
 [2] Add new class
-[3] Delete recent class
+[3] Delete most recent class
 [4] Update class
 [5] Display class
         """)
@@ -65,6 +65,8 @@ def home_option(classes, num_class, selected_class):
                 select_class(selected_class, num_class, classes)
             case 2:
                 num_class = new_class(num_class, classes)
+            case 3:
+                num_class = delete_class(num_class, classes)
             case _:
                 print("Invalid option!")
 
