@@ -41,6 +41,10 @@ def delete_class(cur_num_class, list_class):
     return cur_num_class - 1
 
 
+def display(list_class):
+    print(*list_class, sep="\t")
+
+
 def home_option(classes, num_class, selected_class):
     while True:
         print("""
@@ -67,6 +71,8 @@ def home_option(classes, num_class, selected_class):
                 num_class = new_class(num_class, classes)
             case 3:
                 num_class = delete_class(num_class, classes)
+            case 5:
+                display(classes)
             case _:
                 print("Invalid option!")
 
@@ -78,9 +84,6 @@ def main():
     selected_class = -1
 
     home_option(classes, num_class, selected_class)
-
-
-    print(*classes, sep=" ")
 
 
 if __name__ == "__main__":
