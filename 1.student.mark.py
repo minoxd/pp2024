@@ -5,5 +5,4 @@ def makeClassOf(numOfStudents):
         studentDOB = input("Enter Student DOB: ")
 
 
-numberOfStudents = int(input("Enter number of students: "))
-makeClassOf(numberOfStudents)
+CLASS = ()
