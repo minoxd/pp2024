@@ -1,6 +1,12 @@
-def select_class(selection, cur_num_class, list_class):
-    if cur_num_class == 0:
+def class_not_exist(cur_num_class):
+    if cur_num_class is None or cur_num_class < 1:
         print("There is no class.")
+        return True
+    return False
+
+
+def select_class(selection, cur_num_class, list_class):
+    if class_not_exist(cur_num_class):
         return
     while True:
         print("""
@@ -16,6 +22,7 @@ def select_class(selection, cur_num_class, list_class):
             print("Invalid option!")
             option = int(input("Enter class: "))
         if option == 0:
+            selection = -1
             return
         if 0 < option <= cur_num_class:
             selection = option
@@ -33,19 +40,26 @@ def new_class(cur_num_class, list_class):
 
 
 def delete_class(cur_num_class, list_class):
-    if cur_num_class is None or cur_num_class < 1:
-        print("There is no class.")
+    if class_not_exist(cur_num_class):
         return
     print("Deleted", list_class[cur_num_class - 1])
     del list_class[cur_num_class - 1]
     return cur_num_class - 1
 
 
+def update_class(selection, cur_num_class, list_class):
+    if class_not_exist(cur_num_class):
+        return
+
+
+
 def display(list_class):
     print(*list_class, sep="\t")
 
+def home_option
 
-def home_option(classes, num_class, selected_class):
+
+def class_part(classes, num_class, selected_class):
     while True:
         print("""
         STUDENT MARK PROGRAM
@@ -71,6 +85,8 @@ def home_option(classes, num_class, selected_class):
                 num_class = new_class(num_class, classes)
             case 3:
                 num_class = delete_class(num_class, classes)
+            case 4:
+                update_class(selected_class, num_class, classes)
             case 5:
                 display(classes)
             case _:
