@@ -1,3 +1,6 @@
+from datetime import date
+
+
 def class_not_exist(list_class):
     num_class = len(list_class)
     if num_class < 1:
@@ -35,8 +38,7 @@ def update_student_option(list_class, class_selection):
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
-            print("Invalid option!")
-            option = int(input("Enter your choice: "))
+            option = -1
         match option:
             case 0:
                 return
@@ -63,11 +65,21 @@ def add_student(list_student):
 
 
 def get_dob():
-    return
+    print("Please enter the birthday in the following order: year, month, day.")
+    dob = date(
+        year=int(input("Year: ")),
+        month=int(input("Month: ")),
+        day=int(input("Day: "))
+    )
+    return dob
 
 
 def add_class(list_class):
-    new_name = "CLASS" + str(len(list_class) + 1)
+    new_name = str(input("Enter class name (or leave a blank for default): "))
+    if new_name == "":
+        new_name = "unnamed"
+        while check_exist(list_class, new_name):
+            new_name += "*"
     list_class += [{}]
     list_class[-1] = {
         "name": new_name,
@@ -75,6 +87,13 @@ def add_class(list_class):
     }
     print("Added", get_name(list_class, -1))
     return list_class
+
+
+def check_exist(list_class, name):
+    for i in range(len(list_class)):
+        if name == list_class[i]["name"]:
+            return True
+    return False
 
 
 def print_get_class_choice(list_class):
@@ -90,11 +109,11 @@ def print_get_class_choice(list_class):
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
-            print("Invalid option!")
-            option = int(input("Enter your choice: "))
+            option = -1
         if 0 <= option <= num_class:
             return option
-        print("Invalid option!")
+        else:
+            print("Invalid option!")
 
 
 def get_name(the_list, index):
@@ -118,11 +137,11 @@ def display(list_class):
     num_class = len(list_class)
     if num_class == 1:
         print(f"\nThere is {num_class} class:")
-        print(f"{get_name(list_class, 0)}\t")
+        print(f"{get_name(list_class, 0)}")
     else:
         print(f"\nThere is {num_class} classes:")
         for i in range(num_class):
-            print(f"{get_name(list_class, i)}", end="\t")
+            print(f"{get_name(list_class, i)}")
         print()
 
 
@@ -140,8 +159,7 @@ def class_student(list_class):
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
-            print("Invalid option!")
-            option = int(input("Enter your choice: "))
+            option = -1
         match option:
             case 0:
                 return
@@ -171,8 +189,7 @@ def home_option(list_class):
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
-            print("Invalid option!")
-            option = int(input("Enter your choice: "))
+            option = -1
         match option:
             case 0:
                 print("""
