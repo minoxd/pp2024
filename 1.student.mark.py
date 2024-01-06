@@ -32,7 +32,7 @@ def update_student_option(list_class, class_selection):
 [3] Delete the newest student
 [4] Delete multiple students
 [5] Delete all
-[6] Change name of an existing student
+[6] Update an existing student
 [7] List all students
 """)
         try:
@@ -43,10 +43,10 @@ def update_student_option(list_class, class_selection):
             case 0:
                 return
             case 1:
-                list_class[class_selection - 1] = add_student(list_class[class_selection - 1])
+                list_class[class_selection - 1]["student"] = add_student(list_class[class_selection - 1]["student"])
             case 2:
                 return
-            case 3:
+            case 3: # do shift id when delete
                 return
             case 4:
                 return
@@ -65,12 +65,17 @@ def add_student(list_student):
 
 
 def get_dob():
-    print("Please enter the birthday in the following order: year, month, day.")
-    dob = date(
-        year=int(input("Year: ")),
-        month=int(input("Month: ")),
-        day=int(input("Day: "))
-    )
+    while True:
+        try:
+            print("Please enter the birthday in the following order: year, month, day.")
+            dob = date(
+                year=int(input("Year: ")),
+                month=int(input("Month: ")),
+                day=int(input("Day: "))
+            )
+            break
+        except ValueError as ve:
+            print(f"\nInvalid input: {ve}!")
     return dob
 
 
@@ -96,6 +101,7 @@ def check_exist(list_class, name):
     return False
 
 
+# combine with get student
 def print_get_class_choice(list_class):
     num_class = len(list_class)
     while True:
@@ -153,7 +159,7 @@ def class_student(list_class):
 [0] Exit
 [1] Add a new class
 [2] Delete a class
-[3] Update student of a class
+[3] Update students of a class
 [4] List all classes
 """)
         try:
