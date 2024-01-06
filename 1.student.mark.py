@@ -9,26 +9,9 @@ def class_not_exist(list_class):
 def update_student(list_class):
     if class_not_exist(list_class):
         return list_class
-    num_class = len(list_class)
-    while True:
-        print("""
-        AVAILABLE CLASSES
-        
-[0] Exit""")
-        for i in range(num_class):
-            print(f"[{i+1}] {list_class[i]}")
-        print("")
-        try:
-            option = int(input("Enter your choice: "))
-        except ValueError:
-            print("Invalid option!")
-            option = int(input("Enter your choice: "))
-        if option == 0:
-            return list_class
-        if 0 < option <= num_class:
-            selection = option
-            break
-        print("Invalid option!")
+    selection = print_get_class_choice(list_class)
+    if selection == 0:
+        return list_class
     update_student_option(list_class, selection)
     return list_class
 
@@ -38,7 +21,7 @@ def update_student_option(list_class, selection):
 
     while True:
         print(f"""
-        {list_class[selection - 1]}
+        {get_class_name(list_class, selection - 1)}
 
 [0] Exit
 [1] Add a new student
@@ -74,19 +57,48 @@ def add_student(list_student):
 
 
 def add_class(list_class):
-    s = "CLASS" + str(len(list_class) + 1)
-    list_class += [s]
-    list_class[-1] = []
-    print("Added", list_class[-1])
+    new_name = "CLASS" + str(len(list_class) + 1)
+    list_class += [{}]
+    list_class[-1] = {
+        "name": new_name,
+        "student": []
+    }
+    print("Added", get_class_name(list_class, -1))
     return list_class
+
+
+def print_get_class_choice(list_class):
+    num_class = len(list_class)
+    while True:
+        print("""
+        AVAILABLE CLASSES
+
+[0] Exit""")
+        for i in range(num_class):
+            print(f"[{i + 1}] {get_class_name(list_class, i)}")
+        print("")
+        try:
+            option = int(input("Enter your choice: "))
+        except ValueError:
+            print("Invalid option!")
+            option = int(input("Enter your choice: "))
+        if 0 <= option <= num_class:
+            return option
+        print("Invalid option!")
+
+
+def get_class_name(list_class, index):
+    return list_class[index]["name"]
 
 
 def delete_class(list_class):
     if class_not_exist(list_class):
         return list_class
-    num_class = len(list_class)
-    print("Deleted", list_class[num_class - 1])
-    del list_class[num_class - 1]
+    selection = print_get_class_choice(list_class)
+    if selection == 0:
+        return list_class
+    print("Deleted", get_class_name(list_class, selection - 1))
+    del list_class[selection - 1]
     return list_class
 
 
@@ -96,10 +108,12 @@ def display(list_class):
     num_class = len(list_class)
     if num_class == 1:
         print(f"\nThere is {num_class} class:")
-        print(*list_class, sep="\t")
+        print(f"{get_class_name(list_class, 0)}\t")
     else:
         print(f"\nThere is {num_class} classes:")
-        print(*list_class, sep="\t")
+        for i in range(num_class):
+            print(f"{get_class_name(list_class, i)}", end="\t")
+        print()
 
 
 def class_student(list_class):
@@ -108,8 +122,8 @@ def class_student(list_class):
         CLASSES AND STUDENTS
         
 [0] Exit
-[1] Add new class
-[2] Delete newest class
+[1] Add a new class
+[2] Delete a class
 [3] Update student of a class
 [4] List all classes
 """)
