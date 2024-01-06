@@ -9,19 +9,19 @@ def class_not_exist(list_class):
 def update_student(list_class):
     if class_not_exist(list_class):
         return list_class
-    selection = print_get_class_choice(list_class)
-    if selection == 0:
+    class_selection = print_get_class_choice(list_class)
+    if class_selection == 0:
         return list_class
-    update_student_option(list_class, selection)
+    update_student_option(list_class, class_selection)
     return list_class
 
 
-def update_student_option(list_class, selection):
+def update_student_option(list_class, class_selection):
     num_class = len(list_class)
 
     while True:
         print(f"""
-        {get_class_name(list_class, selection - 1)}
+        {get_name(list_class, class_selection - 1)}
 
 [0] Exit
 [1] Add a new student
@@ -41,7 +41,7 @@ def update_student_option(list_class, selection):
             case 0:
                 return
             case 1:
-                list_class[selection - 1] = add_student(list_class[selection - 1])
+                list_class[class_selection - 1] = add_student(list_class[class_selection - 1])
             case 2:
                 return
             case 3:
@@ -53,7 +53,17 @@ def update_student_option(list_class, selection):
 
 
 def add_student(list_student):
+    list_student += [{}]
+    list_student[-1] = {
+        "id": len(list_student),
+        "name": str(input("Enter name: ")),
+        "dob": get_dob()
+    }
     return list_student
+
+
+def get_dob():
+    return
 
 
 def add_class(list_class):
@@ -63,7 +73,7 @@ def add_class(list_class):
         "name": new_name,
         "student": []
     }
-    print("Added", get_class_name(list_class, -1))
+    print("Added", get_name(list_class, -1))
     return list_class
 
 
@@ -75,7 +85,7 @@ def print_get_class_choice(list_class):
 
 [0] Exit""")
         for i in range(num_class):
-            print(f"[{i + 1}] {get_class_name(list_class, i)}")
+            print(f"[{i + 1}] {get_name(list_class, i)}")
         print("")
         try:
             option = int(input("Enter your choice: "))
@@ -87,18 +97,18 @@ def print_get_class_choice(list_class):
         print("Invalid option!")
 
 
-def get_class_name(list_class, index):
-    return list_class[index]["name"]
+def get_name(the_list, index):
+    return the_list[index]["name"]
 
 
 def delete_class(list_class):
     if class_not_exist(list_class):
         return list_class
-    selection = print_get_class_choice(list_class)
-    if selection == 0:
+    class_selection = print_get_class_choice(list_class)
+    if class_selection == 0:
         return list_class
-    print("Deleted", get_class_name(list_class, selection - 1))
-    del list_class[selection - 1]
+    print("Deleted", get_name(list_class, class_selection - 1))
+    del list_class[class_selection - 1]
     return list_class
 
 
@@ -108,11 +118,11 @@ def display(list_class):
     num_class = len(list_class)
     if num_class == 1:
         print(f"\nThere is {num_class} class:")
-        print(f"{get_class_name(list_class, 0)}\t")
+        print(f"{get_name(list_class, 0)}\t")
     else:
         print(f"\nThere is {num_class} classes:")
         for i in range(num_class):
-            print(f"{get_class_name(list_class, i)}", end="\t")
+            print(f"{get_name(list_class, i)}", end="\t")
         print()
 
 
