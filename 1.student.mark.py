@@ -41,8 +41,9 @@ def class_student(list_class):
 [0] Exit
 [1] Add a new class
 [2] Delete a class
-[3] Update students of a class
-[4] List all classes
+[3] View details of a class
+[4] Update students of a class
+[5] List all classes
 """)
         try:
             option = int(input("Enter your choice: "))
@@ -55,9 +56,11 @@ def class_student(list_class):
                 list_class = add_class(list_class)
             case 2:
                 list_class = del_class(list_class)
-            case 3:
-                list_class = update_student(list_class)
+            case 3:  # todo
+                pass
             case 4:
+                list_class = update_student(list_class)
+            case 5:
                 display(list_class)
             case _:
                 print("\tInvalid option!")
@@ -97,21 +100,21 @@ def list_no_element(the_list, class_or_student: int):
     return False
 
 
-def print_get_class_choice(list_class):  # todo: combine with get student
-    num_class = len(list_class)
+def print_get_class_or_student_choice(the_list, class_or_student: int):
+    num_element = len(the_list)
     while True:
-        print("""
-        AVAILABLE CLASSES
+        print(f"""
+        {["AVAILABLE CLASSES", "STUDENT LIST"][class_or_student-1]}
 
 [0] Exit""")
-        for i in range(num_class):
-            print(f"[{i + 1}] {get_name(list_class, i)}")
+        for i in range(num_element):
+            print(f"[{i + 1}] {get_name(the_list, i)}")
         print("")
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
             option = -1
-        if 0 <= option <= num_class:
+        if 0 <= option <= num_element:
             return option
         else:
             print("\tInvalid option!")
@@ -120,18 +123,20 @@ def print_get_class_choice(list_class):  # todo: combine with get student
 def del_class(list_class):
     if list_no_element(list_class, 1):
         return list_class
-    class_selection = print_get_class_choice(list_class)
+    class_selection = print_get_class_or_student_choice(list_class, 1)
     if class_selection == 0:
         return list_class
-    print("Deleted", get_name(list_class, class_selection - 1))
+    print(f"Deleted {get_name(list_class, class_selection - 1)}.")
     del list_class[class_selection - 1]
+    if len(list_class) == 0:
+        print("There is no class left.")
     return list_class
 
 
 def update_student(list_class):
     if list_no_element(list_class, 1):
         return list_class
-    class_selection = print_get_class_choice(list_class)
+    class_selection = print_get_class_or_student_choice(list_class, 1)
     if class_selection == 0:
         return list_class
     update_student_option(list_class, class_selection)
@@ -151,8 +156,9 @@ def update_student_option(list_class, class_selection):
 [3] Delete a student
 [4] Delete multiple students
 [5] Delete all
-[6] Update an existing student
-[7] List all students
+[6] View details of a student
+[7] Update an existing student
+[8] List all students
 """)
         try:
             option = int(input("Enter your choice: "))
@@ -168,7 +174,16 @@ def update_student_option(list_class, class_selection):
             case 3:
                 list_class[class_selection - 1]["student"] = del_student(list_class[class_selection - 1]["student"])
             case 4:
-                return
+                list_class[class_selection - 1]["student"] = del_n_student(list_class[class_selection - 1]["student"])
+            case 5:
+                list_class[class_selection - 1]["student"] = del_all_students(list_class[class_selection - 1]["student"],
+                                                                              list_class[class_selection - 1]["name"])
+            case 6:
+                pass
+            case 7:
+                pass
+            case 8:
+                pass
             case _:
                 print("\tInvalid option!")
 
@@ -224,15 +239,56 @@ def add_n_student(list_student):
     return list_student
 
 
-def del_student(list_student):  # todo: need change
+def del_student(list_student):
+    num_students = len(list_student)
     if list_no_element(list_student, 2):
         return list_student
-    class_selection = print_get_class_choice(list_student)
-    if class_selection == 0:
+    student_selection = print_get_class_or_student_choice(list_student, 2)
+    if student_selection == 0:
         return list_student
-    print("Deleted", get_name(list_student, class_selection - 1))
-    del list_student[class_selection - 1]
+    print(f"Deleted {get_name(list_student, student_selection - 1)}.")
+    del list_student[student_selection - 1]
+    if len(list_student) == 0:
+        print("There is no student left.")
+    for i in range(num_students - student_selection):
+        list_student[student_selection - 1 + i]["id"] -= 1
     return list_student
+
+
+def del_n_student(list_student):
+    while True:
+        try:
+            times = int(input("Enter number of students to be deleted ([0] to exit): "))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return list_student
+        if times < 0 or times > len(list_student):
+            print("\tInvalid input!")
+        else:
+            for i in range(times):
+                list_student = del_student(list_student)
+            break
+    return list_student
+
+
+def del_all_students(list_student, class_name):
+    key = "yesyesyes"
+    while True:
+        print(f"""
+        WARNING: THIS PROCESS CANNOT BE UNDONE
+        ARE YOU SURE YOU WANT TO DELETE ALL STUDENTS IN {class_name}
+
+[0] Exit
+[!] Type "{key}" to confirm the deletion
+""")
+        option = input("Enter your answer: ")
+        if option == "0":
+            return list_student
+        if option == key:
+            print("There is no student left.")
+            return []
+        print("\tInvalid input!")
 
 
 def display(list_class):
