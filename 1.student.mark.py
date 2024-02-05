@@ -42,7 +42,7 @@ def class_student(list_class):
 [1] Add a new class
 [2] Delete a class
 [3] View details of a class
-[4] Update students of a class
+[4] Update a class
 [5] List all classes
 """)
         try:
@@ -59,7 +59,7 @@ def class_student(list_class):
             case 3:
                 display_class_details(list_class)
             case 4:
-                list_class = update_student(list_class)
+                list_class = update_class(list_class)
             case 5:
                 display_list_class(list_class)
             case _:
@@ -120,7 +120,7 @@ def print_get_class_or_student_choice(the_list, class_or_student: int):
             print("\tInvalid option!")
 
 
-def del_class(list_class):
+def del_class(list_class):  # TODO: ask if there is student
     if list_no_element(list_class, 1):
         return list_class
     class_selection = print_get_class_or_student_choice(list_class, 1)
@@ -155,17 +155,17 @@ def display_class_details(list_class):
     return
 
 
-def update_student(list_class):
+def update_class(list_class):
     if list_no_element(list_class, 1):
         return list_class
     class_selection = print_get_class_or_student_choice(list_class, 1)
     if class_selection == 0:
         return list_class
-    update_student_option(list_class, class_selection)
+    update_class_options(list_class, class_selection)
     return list_class
 
 
-def update_student_option(list_class, class_selection):
+def update_class_options(list_class, class_selection):
     num_class = len(list_class)
 
     while True:
@@ -324,6 +324,10 @@ def view_a_student(list_student):
     ID:\t\t\t\t\t{list_student[student_selection - 1]["id"]}
     DOB (YYYY-MM-DD):\t{list_student[student_selection - 1]["dob"]}""")
     return
+
+
+def update_student(list_student):
+    pass
 
 
 def display_list_class(list_class):
