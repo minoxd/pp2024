@@ -120,13 +120,33 @@ def print_get_class_or_student_choice(the_list, class_or_student: int):
             print("\tInvalid option!")
 
 
-def del_class(list_class):  # TODO: ask if there is student
+def confirm_del(num_student):
+    while True:
+        try:
+            option = str(input(f"There are {num_student} students in the class.\nAre you sure you want to delete (y/N): ")).lower()
+        except ValueError:
+            option = -1
+        match option:
+            case "y" | "yes":
+                return True
+            case "n" | "no":
+                return False
+            case _:
+                print("\tInvalid option!")
+
+
+def del_class(list_class):
     if list_no_element(list_class, 1):
         return list_class
     class_selection = print_get_class_or_student_choice(list_class, 1)
     if class_selection == 0:
         return list_class
-    print(f"Deleted {get_name(list_class, class_selection - 1)}.")
+    num_student = len(list_class[class_selection - 1]["student"])
+    if num_student:
+        if not confirm_del(num_student):
+            print("Deletion cancelled!")
+            return list_class
+    print(f"Deleted {get_name(list_class, class_selection - 1)} with {num_student} students.")
     del list_class[class_selection - 1]
     if len(list_class) == 0:
         print("There is no class left.")
@@ -203,7 +223,7 @@ def update_class_options(list_class, class_selection):
             case 6:
                 view_a_student(list_class[class_selection - 1]["student"])
             case 7:
-                pass
+                list_class[class_selection - 1]["student"] = update_student(list_class[class_selection - 1]["student"])
             case 8:
                 list_all_students(list_class, class_selection)
             case _:
@@ -327,7 +347,37 @@ def view_a_student(list_student):
 
 
 def update_student(list_student):  # TODO
-    pass
+    num_students = len(list_student)
+    if list_no_element(list_student, 2):
+        return list_student
+    student_selection = print_get_class_or_student_choice(list_student, 2)
+    if student_selection == 0:
+        return list_student
+
+    while True:
+        print(f"""
+        SELECTED STUDENT
+    Student:\t\t\t{get_name(list_student, student_selection - 1)}
+    ID:\t\t\t\t\t{list_student[student_selection - 1]["id"]}
+    DOB (YYYY-MM-DD):\t{list_student[student_selection - 1]["dob"]}
+
+[0] Exit
+[1] Change name
+[2] Change dob
+""")
+        try:
+            option = int(input("Enter your choice: "))
+        except ValueError:
+            option = -1
+        match option:
+            case 0:
+                return list_student
+            case 1:
+                list_student[student_selection - 1]["name"] = str(input("Enter name: "))
+            case 2:
+                list_student[student_selection - 1]["dob"] = get_dob()
+            case _:
+                print("\tInvalid option!")
 
 
 def display_list_class(list_class):
