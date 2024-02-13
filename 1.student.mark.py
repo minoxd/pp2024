@@ -1,7 +1,7 @@
 from datetime import date
 
 
-def home_option(list_class):
+def home_option(list_class, list_course):
     while True:
         print("""
         STUDENT MARK PROGRAM
@@ -24,7 +24,7 @@ def home_option(list_class):
             case 1:
                 class_student(list_class)
             case 2:
-                return
+                course(list_course)
             case 3:
                 return
             case 4:
@@ -79,6 +79,8 @@ def get_name(the_list, index):
 
 def add_class(list_class):
     new_name = str(input("Enter class name (or leave a blank): "))
+    while new_name[-1] == " ":
+        new_name -= " "
     if new_name == "":
         new_name = "unnamed"
         while check_auto_name_exist(list_class, new_name):
@@ -123,7 +125,9 @@ def print_get_class_or_student_choice(the_list, class_or_student: int):
 def confirm_del(num_student):
     while True:
         try:
-            option = str(input(f"There are {num_student} students in the class.\nAre you sure you want to delete (y/N): ")).lower()
+            option = str(
+                input(f"There are {num_student} students in the class.\nAre you sure you want to delete (y/N): ")
+            ).lower()
         except ValueError:
             option = -1
         match option:
@@ -186,8 +190,6 @@ def update_class(list_class):
 
 
 def update_class_options(list_class, class_selection):
-    num_class = len(list_class)
-
     while True:
         print(f"""
         Class: {get_name(list_class, class_selection - 1)}
@@ -218,8 +220,11 @@ def update_class_options(list_class, class_selection):
             case 4:
                 list_class[class_selection - 1]["student"] = del_n_student(list_class[class_selection - 1]["student"])
             case 5:
-                list_class[class_selection - 1]["student"] = del_all_students(list_class[class_selection - 1]["student"],
-                                                                              list_class[class_selection - 1]["name"])
+                list_class[class_selection - 1]["student"] = (
+                    del_all_students(
+                        list_class[class_selection - 1]["student"],
+                        list_class[class_selection - 1]["name"])
+                )
             case 6:
                 view_a_student(list_class[class_selection - 1]["student"])
             case 7:
@@ -346,8 +351,7 @@ def view_a_student(list_student):
     return
 
 
-def update_student(list_student):  # TODO
-    num_students = len(list_student)
+def update_student(list_student):
     if list_no_element(list_student, 2):
         return list_student
     student_selection = print_get_class_or_student_choice(list_student, 2)
@@ -394,11 +398,42 @@ def display_list_class(list_class):
         print()
 
 
+def course(list_course):  # TODO
+    while True:
+        print("""
+        COURSES
+
+[0] Exit
+[1] Add a new course
+[2] Delete a course
+[3] View details of a class
+[4] List all courses
+""")
+        try:
+            option = int(input("Enter your choice: "))
+        except ValueError:
+            option = -1
+        match option:
+            case 0:
+                return
+            case 1:
+                list_class = add_class(list_class)
+            case 2:
+                list_class = del_class(list_class)
+            case 3:
+                display_class_details(list_class)
+            case 5:
+                display_list_class(list_class)
+            case _:
+                print("\tInvalid option!")
+
+
 def main():
     # init
     classes = []
+    courses = []
 
-    home_option(classes)
+    home_option(classes, courses)
 
 
 if __name__ == "__main__":
