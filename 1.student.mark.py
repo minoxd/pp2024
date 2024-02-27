@@ -417,7 +417,7 @@ def course(list_course):  # TODO
             case 0:
                 return
             case 1:
-                list_class = add_class(list_class)
+                list_class = add_course(list_course)
             case 2:
                 list_class = del_class(list_class)
             case 3:
