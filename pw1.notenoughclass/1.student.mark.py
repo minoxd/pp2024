@@ -77,7 +77,7 @@ def get_name(the_list, index):
     return the_list[index]["name"]
 
 
-def add_class(list_class):
+def add_class(list_class): # TODO: class id
     new_name = str(input("Enter class name (or leave a blank): "))
     while new_name[-1] == " ":
         new_name -= " "
