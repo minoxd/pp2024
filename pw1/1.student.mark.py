@@ -25,7 +25,7 @@ def home(list_student, list_course):
             case 2:
                 course(list_course, list_student)
             case 3:
-                return
+                quick(list_course, list_student)
             case _:
                 print("\tInvalid option!")
 
@@ -61,13 +61,13 @@ def student(list_student):
             case 4:
                 list_student = del_n_student(list_student)
             case 5:
-                list_student = del_all_student(list_student)
+                list_student = del_all_elements(list_student, 0)
             case 6:
                 view_a_student(list_student)
             case 7:
                 list_student = update_student(list_student)
             case 8:
-                list_all_students(list_student)
+                list_all_elements(list_student, 0)
             case _:
                 print("\tInvalid option!")
 
@@ -145,7 +145,7 @@ def list_no_element(the_list, mode):
     cate = [
         "student in the class",
         "course available",
-        "no mark"
+        "mark"
     ]
     if num_element < 1:
         print(f"There is no {cate[mode]}.")
@@ -166,7 +166,7 @@ def print_list_get_element(the_list, mode):
 [0] Exit""")
         for i in range(num_element):
             print(f"[{i + 1}] {get_name(the_list, i)}")
-        print("")
+        print()
         try:
             option = int(input("Enter your choice: "))
         except ValueError:
@@ -178,7 +178,7 @@ def print_list_get_element(the_list, mode):
 
 
 def get_name(the_list, index):
-    return the_list[index]["name"]
+    return f"{the_list[index]["name"]} (ID: {the_list[index]["id"]})"
 
 
 def del_n_student(list_student):
@@ -198,21 +198,29 @@ def del_n_student(list_student):
     return list_student
 
 
-def del_all_student(list_student):
+def del_all_elements(the_list, mode):
     key = "yesyesyes"
+    label1 = [
+        "STUDENTS IN THE CLASS",
+        "MARKS IN THE COURSE"
+    ]
+    label2 = [
+        "student",
+        "mark"
+    ]
     while True:
         print(f"""
         WARNING: THIS PROCESS CANNOT BE UNDONE
-        ARE YOU SURE YOU WANT TO DELETE ALL STUDENTS IN THE CLASS?
+        ARE YOU SURE YOU WANT TO DELETE ALL {label1[mode]}?
 
 [0] Exit
 [!] Type "{key}" to confirm the deletion
 """)
         option = input("Enter your answer: ")
         if option == "0":
-            return list_student
+            return the_list
         if option == key:
-            print("There is no student left.")
+            print(f"There is no {label2[mode]} left.")
             return []
         print("\tInvalid input!")
 
@@ -264,17 +272,25 @@ def update_student(list_student):
                 print("\tInvalid option!")
 
 
-def list_all_students(list_student):
-    num_student = len(list_student)
-    if list_no_element(list_student, 0):
+def list_all_elements(the_list, mode):
+    num_elements = len(the_list)
+    if list_no_element(the_list, mode):
         return
+    label1 = [
+        "STUDENT LIST",
+        "COURSE LIST"
+    ]
+    label2 = [
+        "students",
+        "courses"
+    ]
     print(f"""
-        STUDENT LIST
+        {label1[mode]}
 
-    Number of students: {num_student}
-    Listing all students:""")
-    for i in range(num_student):
-        print(f"{get_name(list_student, i)}")
+    Number of {label2[mode]}: {num_elements}
+    Listing all {label2[mode]}:""")
+    for i in range(num_elements):
+        print(f"{get_name(the_list, i)}")
     return
 
 
@@ -285,10 +301,10 @@ def course(list_course, list_student):
 
 [0] Exit
 [1] Add a new course
-[3] Delete a course
-[6] View details of a course
-[7] Update an existing course
-[8] List all courses
+[2] Delete a course
+[3] View details of a course
+[4] Update an existing course
+[5] List all courses
 """)
         try:
             option = int(input("Enter your choice: "))
@@ -299,14 +315,14 @@ def course(list_course, list_student):
                 return
             case 1:
                 list_course = add_course(list_course)
-            case 3:
+            case 2:
                 list_course = del_course(list_course)
-            case 6:
-                view_a_course(list_course)
-            case 7:
+            case 3:
+                view_a_course(list_course, list_student)
+            case 4:
                 list_course = update_course(list_course, list_student)
-            case 8:
-                list_all_courses(list_course)
+            case 5:
+                list_all_elements(list_course, 1)
             case _:
                 print("\tInvalid option!")
 
@@ -338,12 +354,23 @@ def del_course(list_course):
     return list_course
 
 
-def view_a_course(list_course):  # TODO
-    pass
+def view_a_course(list_course, list_student):
+    if list_no_element(list_course, 1):
+        return
+    course_selection = print_list_get_element(list_course, 1)
+    if course_selection == 0:
+        return
+    index = course_selection - 1
+    print(f"""
+        SELECTED COURSE
+    Course:\t\t{get_name(list_course, index)}
+    ID:\t\t\t{list_course[index]["id"]}
+    Mark status: """, end="")
+    print_mark(list_course, index, list_student)
+    return
 
 
 def update_course(list_course, list_student):
-    num_student = len(list_student)
     if list_no_element(list_course, 1):
         return list_course
     course_selection = print_list_get_element(list_course, 1)
@@ -354,16 +381,14 @@ def update_course(list_course, list_student):
     while True:
         print(f"""
         SELECTED COURSE
-    Course:\t\t\t{get_name(list_course, index)}
-    ID:\t\t\t\t\t{list_course[index]["id"]}
-    MARK: """, end="")
-        if not list_no_element(list_course[index]["mark"], 2):
-            for i in range(num_student):
-                print(f"{get_name(list_student, i)}: {mark_lookup(list_course, index, i)}")
+    Course:\t\t{get_name(list_course, index)}
+    ID:\t\t\t{list_course[index]["id"]}
+    Mark status: """, end="")
+        print_mark(list_course, index, list_student)
 
         print("""
 [0] Exit
-[1] Change name
+[1] Change course name
 [2] Update mark
 """)
         try:
@@ -376,33 +401,46 @@ def update_course(list_course, list_student):
             case 1:
                 list_course[index]["name"] = str(input("Enter name: "))
             case 2:
-                list_course[index]["mark"] = mark(list_course[index]["mark"])
+                list_course[index]["mark"] = mark(list_course, index, list_student)
             case _:
                 print("\tInvalid option!")
 
 
-def mark_lookup(list_course, index, sid):
-    list_mark = list_course[index]["mark"]
+def print_mark(list_course, course_index, list_student):
+    num_student = len(list_student)
+    list_mark = list_course[course_index]["mark"]
+    if not list_no_element(list_mark, 2):
+        print(f"Marked {len(list_mark)}/{num_student} students.\n")
+        for i in range(num_student):
+            lookup_result = mark_lookup(list_course, course_index, i)  # TODO lookup result
+            if lookup_result != "n/a":
+                lookup_result = lookup_result[0]
+            print(f"{get_name(list_student, i)}: {lookup_result}")
+
+
+def mark_lookup(list_course, course_index, student_index):
+    sid = student_index + 1
+    list_mark = list_course[course_index]["mark"]
     for i in list_mark:
         if i["student_id"] == sid:
-            return i["mark"]
-    return 0.0
+            return [i["mark"], i]
+    return "n/a"
 
 
-def mark(list_mark):
+def mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
     while True:
-        print(f"""
-        COURSE LIST
-
+        print("""
+        Mark status: """, end="")
+        print_mark(list_course, course_index, list_student)
+        print("""
 [0] Exit
 [1] Add mark for a student
 [2] Add mark for n student
 [3] Delete mark for a student
 [4] Delete marks for n student
 [5] Delete all marks
-[6] View mark of a student
-[7] Update an existing mark
-[8] List all courses
+[6] Update an existing mark
 """)
         try:
             option = int(input("Enter your choice: "))
@@ -412,22 +450,197 @@ def mark(list_mark):
             case 0:
                 return list_mark
             case 1:
-                list_course = add_course(list_course)
+                list_mark = add_mark(list_course, course_index, list_student)
+            case 2:
+                list_mark = add_n_mark(list_course, course_index, list_student)
             case 3:
-                list_course = del_course(list_course)
+                list_mark = del_mark(list_course, course_index, list_student)
+            case 4:
+                list_mark = del_n_mark(list_course, course_index, list_student)
+            case 5:
+                list_mark = del_all_elements(list_mark, 1)
             case 6:
-                view_a_course(list_course)
-            case 7:
-                list_course = update_course(list_course, list_student)
-            case 8:
-                list_all_courses(list_course)
+                list_mark = update_mark(list_course, course_index, list_student)
             case _:
                 print("\tInvalid option!")
+
+
+def add_mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
+    num_students = len(list_student)
+    while True:
+        print(f"""
+        ADD MARK
+
+[0] Exit""")
+
+        try:
+            student_selection = int(input("Enter student id: "))
+        except ValueError:
+            student_selection = -1
+        if student_selection == 0:
+            return list_mark
+        student_index = student_selection - 1
+        if 0 < student_selection <= num_students:
+            exist = mark_lookup(list_course, course_index, student_index)
+            if exist != "n/a":
+                print("Already marked this student!")
+                return list_mark
+            list_mark += [{}]
+            list_mark[-1] = {
+                "student_id": student_selection,
+                "mark": format(input_mark(), ".2f")
+            }
+            return list_mark
+        else:
+            print("\tInvalid option!")
+
+
+def input_mark():
+    while True:
+        try:
+            in_mark = float(input("Enter new mark (scale 20): "))
+        except ValueError:
+            in_mark = -1
+        if 0 <= in_mark <= 20:
+            return in_mark
+        else:
+            print("\tInvalid option!")
+
+
+def add_n_mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
+    while True:
+        try:
+            times = int(input("Enter number of new marks ([0] to exit): "))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return list_mark
+        if times < 0 or times > len(list_student):
+            print("\tInvalid input!")
+        else:
+            for i in range(times):
+                print(f"\n\tEnter mark for the {ordinal(i+1)} student: ")
+                list_mark = add_mark(list_course, course_index, list_student)
+            break
     return list_mark
 
 
-def list_all_courses(list_course):
-    pass
+def del_mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
+    num_students = len(list_student)
+    if list_no_element(list_mark, 2):
+        return list_mark
+    try:
+        student_selection = int(input("Enter student id: "))
+    except ValueError:
+        student_selection = -1
+    if student_selection == 0:
+        return list_mark
+    student_index = student_selection - 1
+    if 0 < student_selection <= num_students:
+        delete = mark_lookup(list_course, course_index, student_index)
+        if delete == "n/a":
+            print("Student not marked!")
+            return list_mark
+        print(f"Deleted mark of {get_name(list_student, student_index)}: {delete[0]}.")
+        del list_mark[delete[1]]
+        list_no_element(list_mark, 2)
+        return list_mark
+    else:
+        print("\tInvalid option!")
+
+
+def del_n_mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
+    while True:
+        try:
+            times = int(input("Enter number of marks to be deleted ([0] to exit): "))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return list_mark
+        if times < 0 or times > len(list_mark):
+            print("\tInvalid input!")
+        else:
+            for i in range(times):
+                list_mark = del_mark(list_course, course_index, list_student)
+            break
+    return list_mark
+
+
+def update_mark(list_course, course_index, list_student):
+    list_mark = list_course[course_index]["mark"]
+    num_students = len(list_student)
+    if list_no_element(list_mark, 2):
+        return list_mark
+    try:
+        student_selection = int(input("Enter student id: "))
+    except ValueError:
+        student_selection = -1
+    if student_selection == 0:
+        return list_mark
+    student_index = student_selection - 1
+    if 0 < student_selection <= num_students:
+        update = mark_lookup(list_course, course_index, student_index)
+        if update == "n/a":
+            print("Student not marked!")
+            return list_mark
+
+        print("[Update]", end="")
+        list_mark[update[1]]["mark"] = format(input_mark(), ".2f")
+
+        return list_mark
+    else:
+        print("\tInvalid option!")
+
+
+def quick(list_course, list_student):
+    while True:
+        print("""
+        QUICK OPTIONS
+[0] Exit
+    INPUT
+[1] Add a new student
+[2] Add multiple students
+[3] Add a new course
+[4] Add mark for a student
+    LIST
+[5] List all courses
+[6] List all students
+[7] View details of a course
+    """)
+        try:
+            option = int(input("Enter your choice: "))
+        except ValueError:
+            option = -1
+        match option:
+            case 0:
+                return
+            case 1:
+                list_student = add_student(list_student)
+            case 2:
+                list_student = add_n_student(list_student)
+            case 3:
+                list_course = add_course(list_course)
+            case 4:
+                if list_no_element(list_course, 1):
+                    return list_course
+                course_selection = print_list_get_element(list_course, 1)
+                if course_selection == 0:
+                    return list_course
+                course_index = course_selection - 1
+
+                list_course[course_index]["mark"] = add_mark(list_course, course_index, list_student)
+            case 5:
+                list_all_elements(list_course, 1)
+            case 6:
+                list_all_elements(list_student, 0)
+            case 7:
+                view_a_course(list_course, list_student)
+            case _:
+                print("\tInvalid option!")
 
 
 def main():
