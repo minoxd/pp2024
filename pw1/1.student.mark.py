@@ -412,7 +412,7 @@ def print_mark(list_course, course_index, list_student):
     if not list_no_element(list_mark, 2):
         print(f"Marked {len(list_mark)}/{num_student} students.\n")
         for i in range(num_student):
-            lookup_result = mark_lookup(list_course, course_index, i)  # TODO lookup result
+            lookup_result = mark_lookup(list_course, course_index, i)
             if lookup_result != "n/a":
                 lookup_result = lookup_result[0]
             print(f"{get_name(list_student, i)}: {lookup_result}")
@@ -423,12 +423,11 @@ def mark_lookup(list_course, course_index, student_index):
     list_mark = list_course[course_index]["mark"]
     for i in list_mark:
         if i["student_id"] == sid:
-            return [i["mark"], i]
+            return [i["mark"], list_mark.index(i)]
     return "n/a"
 
 
 def mark(list_course, course_index, list_student):
-    list_mark = list_course[course_index]["mark"]
     while True:
         print("""
         Mark status: """, end="")
@@ -448,19 +447,19 @@ def mark(list_course, course_index, list_student):
             option = -1
         match option:
             case 0:
-                return list_mark
+                return list_course[course_index]["mark"]
             case 1:
-                list_mark = add_mark(list_course, course_index, list_student)
+                list_course[course_index]["mark"] = add_mark(list_course, course_index, list_student)
             case 2:
-                list_mark = add_n_mark(list_course, course_index, list_student)
+                list_course[course_index]["mark"] = add_n_mark(list_course, course_index, list_student)
             case 3:
-                list_mark = del_mark(list_course, course_index, list_student)
+                list_course[course_index]["mark"] = del_mark(list_course, course_index, list_student)
             case 4:
-                list_mark = del_n_mark(list_course, course_index, list_student)
+                list_course[course_index]["mark"] = del_n_mark(list_course, course_index, list_student)
             case 5:
-                list_mark = del_all_elements(list_mark, 1)
+                list_course[course_index]["mark"] = del_all_elements(list_course[course_index]["mark"], 1)
             case 6:
-                list_mark = update_mark(list_course, course_index, list_student)
+                list_course[course_index]["mark"] = update_mark(list_course, course_index, list_student)
             case _:
                 print("\tInvalid option!")
 
@@ -482,10 +481,11 @@ def add_mark(list_course, course_index, list_student):
             return list_mark
         student_index = student_selection - 1
         if 0 < student_selection <= num_students:
-            exist = mark_lookup(list_course, course_index, student_index)
-            if exist != "n/a":
+            lookup_result = mark_lookup(list_course, course_index, student_index)
+            if lookup_result != "n/a":
                 print("Already marked this student!")
                 return list_mark
+
             list_mark += [{}]
             list_mark[-1] = {
                 "student_id": student_selection,
@@ -540,12 +540,13 @@ def del_mark(list_course, course_index, list_student):
         return list_mark
     student_index = student_selection - 1
     if 0 < student_selection <= num_students:
-        delete = mark_lookup(list_course, course_index, student_index)
-        if delete == "n/a":
+        lookup_result = mark_lookup(list_course, course_index, student_index)
+        if lookup_result == "n/a":
             print("Student not marked!")
             return list_mark
-        print(f"Deleted mark of {get_name(list_student, student_index)}: {delete[0]}.")
-        del list_mark[delete[1]]
+
+        print(f"Deleted mark of {get_name(list_student, student_index)}: {lookup_result[0]}.")
+        del list_mark[lookup_result[1]]
         list_no_element(list_mark, 2)
         return list_mark
     else:
@@ -583,13 +584,13 @@ def update_mark(list_course, course_index, list_student):
         return list_mark
     student_index = student_selection - 1
     if 0 < student_selection <= num_students:
-        update = mark_lookup(list_course, course_index, student_index)
-        if update == "n/a":
+        lookup_result = mark_lookup(list_course, course_index, student_index)
+        if lookup_result == "n/a":
             print("Student not marked!")
             return list_mark
 
         print("[Update]", end="")
-        list_mark[update[1]]["mark"] = format(input_mark(), ".2f")
+        list_mark[lookup_result[1]]["mark"] = format(input_mark(), ".2f")
 
         return list_mark
     else:
@@ -601,11 +602,13 @@ def quick(list_course, list_student):
         print("""
         QUICK OPTIONS
 [0] Exit
+
     INPUT
 [1] Add a new student
 [2] Add multiple students
 [3] Add a new course
 [4] Add mark for a student
+
     LIST
 [5] List all courses
 [6] List all students
