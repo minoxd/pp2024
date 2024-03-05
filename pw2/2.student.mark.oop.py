@@ -1,3 +1,5 @@
+# seems like there is no such thing called
+# different constructor for different parent
 from datetime import date
 
 
@@ -72,7 +74,7 @@ def student(list_student):
 
 
 def add_student(list_student):
-    list_student.append(Student(
+    list_student.append(StudentMark(
         set_student_id(),
         input("Enter student name: "),
         set_student_dob()
@@ -84,7 +86,8 @@ def set_student_id():
     while True:
         try:
             sid = input("Enter student id: ")
-            if sid in Student.list_sid:
+            list_sid_obj = StudentMark()
+            if sid in list_sid_obj.get_sm_list_sid():
                 raise ValueError
             break
         except ValueError:
@@ -141,10 +144,14 @@ def del_student(list_student):
         return list_student
     student_index = student_selection - 1
 
-    print(f"Deleted {get_element_name_id(list_student, student_index)}.")
-    Student.list_sid.remove(
-        list_student[student_index].get_id()
+    print(f"Deleted {get_student_name_id(list_student, student_index)}.")
+    list_sid_obj = StudentMark()
+    list_sid_obj.set_sm_list_sid(
+        list_sid_obj.get_sm_list_sid().remove(
+            list_student[student_index].get_sm_sid()
+        )
     )
+
     del list_student[student_index]
     return list_student
 
@@ -169,7 +176,7 @@ def print_list_get_element(the_list, mode):
 
 [0] Exit""")
         for i in range(num_element):
-            name_id = get_element_name_id(the_list, i)
+            name_id = get_student_name_id(the_list, i)
             print(f"[{i + 1}] {name_id}")
         print()
         try:
@@ -182,9 +189,9 @@ def print_list_get_element(the_list, mode):
             print("Invalid option!")
 
 
-def get_element_name_id(the_list, index):
-    the_name = the_list[index].get_name()
-    the_id = the_list[index].get_id()
+def get_student_name_id(the_list, index):
+    the_name = the_list[index].get_sm_sname()
+    the_id = the_list[index].get_sm_sid()
     return f"{the_name} (ID: {the_id})"
 
 
@@ -230,7 +237,8 @@ def del_all_elements(the_list, mode):
             return the_list
         if option == key:
             print(f"There is no {label2[mode]} left.")
-            Student.list_sid.clear()
+            list_sid_obj = StudentMark()
+            list_sid_obj.set_sm_list_sid([])
             return []
         print("Invalid input!")
 
@@ -244,8 +252,8 @@ def view_update_student(list_student):
     while True:
         print(f"""
         SELECTED STUDENT
-    Student:\t\t\t{get_element_name_id(list_student, student_index)}
-    DOB (YYYY-MM-DD):\t{list_student[student_index].get_dob()}
+    Student:\t\t\t{get_student_name_id(list_student, student_index)}
+    DOB (YYYY-MM-DD):\t{list_student[student_index].get_sm_sdob()}
 
 [0] Exit
 [1] Change name
@@ -259,11 +267,11 @@ def view_update_student(list_student):
             case 0:
                 return list_student
             case 1:
-                list_student[student_index].set_name(
+                list_student[student_index].set_sm_sname(
                     str(input("Enter name: "))
                 )
             case 2:
-                list_student[student_index].set_dob(
+                list_student[student_index].set_sm_sdob(
                     set_student_dob()
                 )
             case _:
@@ -274,8 +282,8 @@ def list_all_elements(the_list, mode):
     num_elements = len(the_list)
     label1 = [
         "student in the class",
-        "course available",
-        "mark"
+        # "course available",
+        # "mark"
     ]
     if num_elements < 1:
         print(f"There is no {label1[mode]}.")
@@ -295,44 +303,84 @@ def list_all_elements(the_list, mode):
     Number of {label3[mode]}: {num_elements}
     Listing all {label3[mode]}:""")
     for i in range(num_elements):
-        print(f"{get_element_name_id(the_list, i)}")
+        print(f"{get_student_name_id(the_list, i)}")
     return
 
 
 class Student:
-    list_sid = []
+    __list_sid = []
 
-    def __init__(self, sid, name, dob):
+    def __init__(self, sid, sname, sdob):
         self.__sid = sid
-        Student.list_sid.append(sid)
-        self.__name = name
-        self.__dob = dob
+        Student.__list_sid.append(sid)
+        self.__sname = sname
+        self.__sdob = sdob
 
-    def get_id(self) -> str:
+    # getters
+    def get_list_sid(self):
+        return self.__list_sid
+
+    def get_sid(self):
         return self.__sid
 
-    def get_name(self) -> str:
-        return self.__name
+    def get_sname(self):
+        return self.__sname
 
-    def get_dob(self) -> str:
-        return self.__dob
+    def get_sdob(self):
+        return self.__sdob
 
-    def set_name(self, new_name):
-        self.__name = new_name
+    # setters
+    def set_list_sid(self, new_list_sid):
+        self.__list_sid = new_list_sid
 
-    def set_dob(self, new_dob):
-        self.__dob = new_dob
+    def set_sname(self, new_sname):
+        self.__sname = new_sname
+
+    def set_sdob(self, new_sdob):
+        self.__sdob = new_sdob
 
 
 class Course:
     def __init__(self):
-        pass
+        self.__cname = None
+
+    def get_name(self):
+        return self.__cname
+
+    def set_name(self, newname):
+        self.__cname = newname
 
 
 class StudentMark(Student, Course):
-    def __init__(self):
-        super().__init__()
-        pass
+    def __init__(
+            self,
+            sid="default",
+            sname="default",
+            sdob=date(1, 1, 1)):
+        Student.__init__(self, sid, sname, sdob)
+
+    # getters
+    def get_sm_list_sid(self):
+        return Student.get_list_sid(self)
+
+    def get_sm_sid(self):
+        return Student.get_sid(self)
+
+    def get_sm_sname(self):
+        return Student.get_sname(self)
+
+    def get_sm_sdob(self):
+        return Student.get_sdob(self)
+
+    # setters
+    def set_sm_list_sid(self, new_sm_list_sid):
+        Student.set_list_sid(self, new_sm_list_sid)
+
+    def set_sm_sname(self, new_sm_sname):
+        Student.set_sname(self, new_sm_sname)
+
+    def set_sm_sdob(self, new_sm_sdob):
+        Student.set_sdob(self, new_sm_sdob)
 
 
 def main():
