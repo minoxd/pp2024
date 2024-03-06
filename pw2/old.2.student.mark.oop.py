@@ -110,32 +110,32 @@ def set_student_dob():
     return dob
 
 
-def add_n_student(list_student):
-    while True:
-        try:
-            times = int(input("""
-[0] Exit
-Enter number of new students: """))
-        except ValueError:
-            times = -1
-        if times == 0:
-            return list_student
-        if times < 0:
-            print("Invalid input!")
-        else:
-            for i in range(times):
-                print(f"\nEnter information for the {ordinal(i + 1)} student: ")
-                list_student = add_student(list_student)
-            break
-    return list_student
+# def add_n_student(list_student):
+#     while True:
+#         try:
+#             times = int(input("""
+# [0] Exit
+# Enter number of new students: """))
+#         except ValueError:
+#             times = -1
+#         if times == 0:
+#             return list_student
+#         if times < 0:
+#             print("Invalid input!")
+#         else:
+#             for i in range(times):
+#                 print(f"\nEnter information for the {ordinal(i + 1)} student: ")
+#                 list_student = add_student(list_student)
+#             break
+#     return list_student
 
 
-def ordinal(n: int):
-    if 11 <= (n % 100) <= 13:
-        suffix = 'th'
-    else:
-        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
-    return str(n) + suffix
+# def ordinal(n: int):
+#     if 11 <= (n % 100) <= 13:
+#         suffix = 'th'
+#     else:
+#         suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+#     return str(n) + suffix
 
 
 def del_student(list_student):
