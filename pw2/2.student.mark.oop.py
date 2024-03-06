@@ -23,7 +23,7 @@ def home(s_list, c_list):
             case 1:
                 student(s_list)
             case 2:
-                pass  # course(list_course, list_student)
+                course(s_list, c_list)
             case 3:
                 pass  # quick(list_course, list_student)
             case _:
@@ -60,11 +60,11 @@ def student(s_list):
             case 4:
                 s_list = del_n_student(s_list)
             case 5:
-                pass  # list_student = del_all_elements(list_student, 0)
+                s_list = del_all_elements(s_list, 0)
             case 6:
-                pass  # list_student = view_update_student(list_student)
+                s_list = view_update_student(s_list)
             case 7:
-                pass  # list_all_elements(list_student, 0)
+                print_list_get_element(s_list, 0, False)
             case _:
                 print("Invalid option!")
 
@@ -126,11 +126,11 @@ def print_list_get_element(the_list: list, mode, get: bool):
         return 0
     label1 = [
         "STUDENT LIST",
-        # "COURSE LIST"
+        "COURSE LIST"
     ]
     func1 = [
         get_student_name_id,
-        # get_course_name_id
+        get_course_name_id
     ]
     if get:
         return get_element_true(the_list, mode, label1, func1)
@@ -142,7 +142,7 @@ def list_no_element(the_list, mode):
     num_element = len(the_list)
     label1 = [
         "student in the class",
-        # "course available",
+        "course available",
         # "mark"
     ]
     if num_element < 1:
@@ -221,6 +221,123 @@ Enter number of students to be deleted: """))
     return s_list
 
 
+def del_all_elements(the_list, mode):
+    key = "yesyesyes"
+    label1 = [
+        "STUDENTS IN THE CLASS",
+        # "MARKS IN THE COURSE"
+    ]
+    while True:
+        print(f"""
+        WARNING: THIS PROCESS CANNOT BE UNDONE
+        ARE YOU SURE YOU WANT TO DELETE ALL {label1[mode]}?
+
+[0] Exit
+[!] Type "{key}" to confirm the deletion
+""")
+        answer = input("Enter your answer: ")
+        if answer == "0":
+            return the_list
+        if answer == key:
+            list_no_element(the_list, mode)
+            match mode:
+                case 0:
+                    delete = Student()
+                    delete.delete_list_sid()
+                case 1:
+                    delete = Course()
+                    delete.delete_list_cid()
+            return []
+        print("Invalid input!")
+
+
+def view_update_student(s_list):
+    s_select = print_list_get_element(s_list, 0, True)
+    if s_select == 0:
+        return s_list
+    s_index = s_select - 1
+
+    while True:
+        print(f"""
+        SELECTED STUDENT
+    Student:\t\t\t{get_student_name_id(s_list, s_index)}
+    DOB (YYYY-MM-DD):\t{s_list[s_index].get_sdob()}
+
+[0] Exit
+[1] Change name
+[2] Change dob
+""")
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return s_list
+            case 1:
+                s_list[s_index].set_sname()
+            case 2:
+                s_list[s_index].set_sdob()
+            case _:
+                print("Invalid option!")
+
+
+def course(s_list, c_list):
+    while True:
+        print(f"""
+        COURSE LIST
+
+[0] Exit
+[1] Add a new course
+[2] Delete a course
+[3] View details of a course
+[4] Update an existing course
+[5] List all courses
+""")
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return
+            case 1:
+                c_list = add_course(c_list)
+            case 2:
+                c_list = del_course(c_list)
+            case 3:
+                pass  # view_a_course(list_course, list_student)
+            case 4:
+                pass  # list_course = update_course(list_course, list_student)
+            case 5:
+                pass  # list_all_elements(list_course, 1)
+            case _:
+                print("Invalid option!")
+
+
+def add_course(c_list):
+    new_c = Course()
+    new_c.set_cid()
+    new_c.set_cname()
+    c_list.append(new_c)
+    return c_list
+
+
+def del_course(c_list):
+    c_select = print_list_get_element(c_list, 1, True)
+    if c_select == 0:
+        return c_list
+    c_index = c_select - 1
+
+    print(f"Deleted {get_course_name_id(c_list, c_index)}.")
+    cid = c_list[c_index].get_cid()
+    c_list[c_index].remove_list_cid(cid)
+
+    del c_list[c_index]
+    list_no_element(c_list, 1)
+    return c_list
+
+
 class Student:
     __list_sid = []
 
@@ -248,6 +365,9 @@ class Student:
 
     def remove_list_sid(self, sid):
         self.__list_sid.remove(sid)
+
+    def delete_list_sid(self):
+        self.__list_sid.clear()
 
     def set_sid(self):
         while True:
@@ -282,10 +402,9 @@ class Student:
 class Course:
     __list_cid = []
 
-    def __init__(self, cid, cname):
-        self.__cid = cid
-        Course.__list_cid.append(cid)
-        self.__cname = cname
+    def __init__(self):
+        self.__cid = ""
+        self.__cname = ""
 
     # getters
     def get_list_cid(self):
@@ -298,11 +417,29 @@ class Course:
         return self.__cname
 
     # setters
-    def set_list_cid(self, list_cid):
-        self.__list_cid = list_cid
+    def append_list_cid(self, cid):
+        self.__list_cid.append(cid)
 
-    def set_cname(self, cname):
-        self.__cname = cname
+    def remove_list_cid(self, cid):
+        self.__list_cid.remove(cid)
+
+    def delete_list_cid(self):
+        self.__list_cid.clear()
+
+    def set_cid(self):
+        while True:
+            try:
+                cid = input("Enter course id: ")
+                if cid in self.__list_cid:
+                    raise ValueError
+                self.append_list_cid(cid)
+                break
+            except ValueError:
+                print(f"\nID existed, try another one!")
+        self.__cid = cid
+
+    def set_cname(self):
+        self.__cname = input("Enter course name: ")
 
 
 class Mark:
