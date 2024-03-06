@@ -290,9 +290,8 @@ def course(s_list, c_list):
 [0] Exit
 [1] Add a new course
 [2] Delete a course
-[3] View details of a course
-[4] Update an existing course
-[5] List all courses
+[3] View/Update an existing student
+[4] List all students
 """)
         try:
             select = int(input("Enter your choice: "))
@@ -306,11 +305,9 @@ def course(s_list, c_list):
             case 2:
                 c_list = del_course(c_list)
             case 3:
-                pass  # view_a_course(list_course, list_student)
+                c_list = view_update_course(c_list)
             case 4:
                 pass  # list_course = update_course(list_course, list_student)
-            case 5:
-                pass  # list_all_elements(list_course, 1)
             case _:
                 print("Invalid option!")
 
@@ -336,6 +333,39 @@ def del_course(c_list):
     del c_list[c_index]
     list_no_element(c_list, 1)
     return c_list
+
+
+def view_update_course(c_list):
+    c_select = print_list_get_element(c_list, 1, True)
+    if c_select == 0:
+        return c_list
+    c_index = c_select - 1
+
+    while True:
+        print(f"""
+        SELECTED COURSE
+    Course:\t\t{get_course_name_id(c_list, c_index)}
+    Mark status: """, end="")
+        print_mark(list_course, index, list_student)
+
+        print("""
+[0] Exit
+[1] Change course name
+[2] Update mark
+""")
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return c_list
+            case 1:
+                c_list[c_index].set_sname()
+            case 2:
+                c_list[c_index].set_sdob()
+            case _:
+                print("Invalid option!")
 
 
 class Student:
