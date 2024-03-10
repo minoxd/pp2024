@@ -389,6 +389,8 @@ def print_mark(s_list, c_list, c_index, m_list, mode):
             return updatable(c_mark, s_list, 1)
         case 2:
             return addable(s_list, m_list, 1)
+        case 3:
+            return updatable(c_mark, s_list, 2)
 
 
 def updatable(c_mark, s_list, mode):
@@ -401,6 +403,24 @@ def updatable(c_mark, s_list, mode):
                 print(f"{u.get_sname()} (ID: {u.get_sid()}): {who.get_mval()}")
         case 1:
             pass
+        case 2:
+            while True:
+                print("[0] Exit")
+                for i in range(len(update)):
+                    who = next(m for m in c_mark if m.get_msid() == update[i].get_sid())
+                    print(f"[{i + 1}] {update[i].get_sname()} (ID: {update[i].get_sid()}): {who.get_mval()}")
+                try:
+                    s_select = int(input("Enter your choice: "))
+                except ValueError:
+                    s_select = -1
+                if 0 <= s_select <= len(update):
+                    s_index = s_select - 1
+                    if s_index == -1:
+                        return -1
+                    # return selected student's id
+                    return update[s_index].get_sid()
+                else:
+                    print("Invalid option!\n")
 
 
 def addable(s_list, m_list, mode):
@@ -456,7 +476,7 @@ def mark(s_list, c_list, c_index, m_list):
             case 2:
                 m_list = add_n_mark(s_list, c_list, c_index, m_list)
             case 3:
-                pass  # list_course[course_index]["mark"] = del_mark(list_course, course_index, list_student)
+                m_list = del_mark(s_list, c_list, c_index, m_list)
             case 4:
                 pass  # list_course[course_index]["mark"] = del_n_mark(list_course, course_index, list_student)
             case 5:
@@ -504,7 +524,24 @@ Enter number of new marks: """))
                 m_list = add_mark(s_list, c_list, c_index, m_list)
             break
     return m_list
-        
+
+
+def del_mark(s_list, c_list, c_index, m_list):
+    if list_no_element(s_list, 0):
+        return m_list
+    print("""
+            DELETE MARK
+    """)
+    sid = print_mark(s_list, c_list, c_index, m_list, 3)
+    if sid == -1:
+        return m_list
+    who = next(m for m in m_list if m.get_msid() == sid)
+    name = next(name for name in s_list if name.get_sid() == sid)
+    print(f"Removed mark from {name.get_sname()}")
+    m_list.remove(who)
+
+    return m_list
+
 
 class Student:
     __list_sid = []
