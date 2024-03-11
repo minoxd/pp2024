@@ -230,7 +230,7 @@ def del_all_elements(the_list, mode):
     key = "yesyesyes"
     label1 = [
         "STUDENTS IN THE CLASS",
-        # "MARKS IN THE COURSE"
+        "MARKS IN THE COURSE"
     ]
     while True:
         print(f"""
@@ -249,10 +249,10 @@ def del_all_elements(the_list, mode):
                 case 0:
                     delete = Student()
                     delete.delete_list_sid()
+                    the_list = []
                 case 1:
-                    delete = Course()
-                    delete.delete_list_cid()
-            return []
+                    pass
+            return the_list
         print("Invalid input!")
 
 
@@ -478,9 +478,9 @@ def mark(s_list, c_list, c_index, m_list):
             case 3:
                 m_list = del_mark(s_list, c_list, c_index, m_list)
             case 4:
-                pass  # list_course[course_index]["mark"] = del_n_mark(list_course, course_index, list_student)
+                m_list = del_n_mark(s_list, c_list, c_index, m_list)
             case 5:
-                pass  # list_course[course_index]["mark"] = del_all_elements(list_course[course_index]["mark"], 1)
+                m_list = del_all_mark(c_list, c_index, m_list)
             case 6:
                 pass  # list_course[course_index]["mark"] = update_mark(list_course, course_index, list_student)
             case _:
@@ -541,6 +541,35 @@ def del_mark(s_list, c_list, c_index, m_list):
     m_list.remove(who)
 
     return m_list
+
+
+def del_n_mark(s_list, c_list, c_index, m_list):
+    max_time = 5
+    while True:
+        try:
+            times = int(input("""
+[0] Exit    
+Enter number of marks to delete: """))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return m_list
+        if times < 0:
+            print("Invalid input!")
+        elif times > max_time:
+            print(f"Maximum {max_time} at once.")
+        else:
+            for i in range(times):
+                print(f"\n\tThe {ordinal(i + 1)} student to be deleted: ")
+                m_list = del_mark(s_list, c_list, c_index, m_list)
+            break
+    return m_list
+
+
+def del_all_mark(c_list, c_index, m_list):
+    del_all_elements(m_list, 1)
+    cid = c_list[c_index].get_cid()
+    return [m for m in m_list if m.get_mcid() != cid]
 
 
 class Student:
