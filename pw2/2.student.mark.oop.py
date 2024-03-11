@@ -659,7 +659,10 @@ class Student:
 
     # getters
     def get_list_sid(self):
-        return self.__list_sid
+        if len(self.__list_sid) == 0:
+            print("No student id used yet!")
+            return
+        print("Used student ids: " + str(self.__list_sid))
 
     def get_sid(self):
         return self.__sid
@@ -683,6 +686,7 @@ class Student:
     def set_sid(self):
         while True:
             try:
+                self.get_list_sid()
                 sid = input("Enter student id: ")
                 if sid in self.__list_sid:
                     raise ValueError
@@ -719,7 +723,10 @@ class Course:
 
     # getters
     def get_list_cid(self):
-        return self.__list_cid
+        if len(self.__list_cid) == 0:
+            print("No course id used yet!")
+            return
+        print("Used course ids: " + str(self.__list_cid))
 
     def get_cid(self):
         return self.__cid
@@ -734,12 +741,10 @@ class Course:
     def remove_list_cid(self, cid):
         self.__list_cid.remove(cid)
 
-    def delete_list_cid(self):
-        self.__list_cid.clear()
-
     def set_cid(self):
         while True:
             try:
+                self.get_list_cid()
                 cid = input("Enter course id: ")
                 if cid in self.__list_cid:
                     raise ValueError
@@ -790,8 +795,6 @@ def main():
     m_list = []
 
     s_list, c_list, m_list = home(s_list, c_list, m_list)
-    for i in s_list:
-        print(i.get_sname())
 
 
 if __name__ == "__main__":
