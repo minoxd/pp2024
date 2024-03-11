@@ -9,7 +9,7 @@ class Test:
 
 
 def test_list():
-    if
+    pass
 
 a = Test()
 b = Test()
