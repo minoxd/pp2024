@@ -384,11 +384,11 @@ def print_mark(s_list, c_list, c_index, m_list, mode):
     match mode:
         case 0:
             updatable(c_mark, s_list, 0)
-            addable(s_list, m_list, 0)
+            addable(s_list, cid, m_list, 0)
         case 1:
             return updatable(c_mark, s_list, 1)
         case 2:
-            return addable(s_list, m_list, 1)
+            return addable(s_list, cid, m_list, 1)
         case 3:
             return updatable(c_mark, s_list, 2)
 
@@ -423,8 +423,8 @@ def updatable(c_mark, s_list, mode):
                     print("Invalid option!\n")
 
 
-def addable(s_list, m_list, mode):
-    msid_set = set(m.get_msid() for m in m_list)
+def addable(s_list, cid, m_list, mode):
+    msid_set = set(m.get_msid() for m in m_list if m.get_mcid() == cid)
     add = [s for s in s_list if s.get_sid() not in msid_set]
     match mode:
         case 0:
@@ -570,6 +570,23 @@ def del_all_mark(c_list, c_index, m_list):
     del_all_elements(m_list, 1)
     cid = c_list[c_index].get_cid()
     return [m for m in m_list if m.get_mcid() != cid]
+
+
+def update_mark(s_list, c_list, c_index, m_list):  # TODO
+    if list_no_element(s_list, 0):
+        return m_list
+    print("""
+        UPDATE MARK
+""")
+    sid = print_mark(s_list, c_list, c_index, m_list, 1)
+    if sid == -1:
+        return m_list
+    who = next(m for m in m_list if m.get_msid() == sid)
+    name = next(name for name in s_list if name.get_sid() == sid)
+    print(f"Removed mark from {name.get_sname()}")
+    m_list.remove(who)
+
+    return m_list
 
 
 class Student:
