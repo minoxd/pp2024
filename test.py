@@ -1,23 +1,12 @@
-class Test:
-    __list_class_var = []
+import math
 
-    def append_list(self, c):
-        self.__list_class_var.append(c)
+# Get student score as input
+raw_score = float(input("Enter student score: "))
 
-    def get_list(self):
-        return self.__list_class_var
+# Round down to 1-digit decimal using math.floor()
+rounded_score = math.floor(raw_score * 10) / 10
 
+# Print the rounded score
+print("Rounded down score:", rounded_score)
 
-def test_list():
-    pass
-
-a = Test()
-b = Test()
-
-a.append_list("helo")
-b.append_list("hiii")
-True
-False
-True
-print(a.get_list())
-print(b.get_list())
+print(math.floor(0 * 10) / 10)
