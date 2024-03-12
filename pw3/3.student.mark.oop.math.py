@@ -353,7 +353,7 @@ def view_update_course(s_list, c_list, m_list):
     while True:
         print(f"""
         SELECTED COURSE
-    Course:\t\t\t{get_course_name_id(c_list, c_index)}""")
+    Course:\t\t{get_course_name_id(c_list, c_index)}""")
         print_mark(s_list, c_list, c_index, m_list, 0)
 
         print("""
@@ -379,7 +379,7 @@ def view_update_course(s_list, c_list, m_list):
 def print_mark(s_list, c_list, c_index, m_list, mode):
     cid = c_list[c_index].get_cid()
     c_mark = [m for m in m_list if m.get_mcid() == cid]
-    print("\tMark status:\t", end="")
+    print("    Mark status:\t", end="")
     # if list_no_element(c_mark, 2):
     #     return
     if list_no_element(s_list, 0):
@@ -469,10 +469,10 @@ def mark(s_list, c_list, c_index, m_list):
 [6] Update an existing mark
 """)
         try:
-            selection = int(input("Enter your choice: "))
+            select = int(input("Enter your choice: "))
         except ValueError:
-            selection = -1
-        match selection:
+            select = -1
+        match select:
             case 0:
                 return m_list
             case 1:
@@ -691,7 +691,8 @@ class Student:
                 self.get_list_sid()
                 sid = input("Enter student id: ")
                 if not sid:
-                    print("Student id cannot be blank!")  # todo
+                    print("\nStudent id cannot be blank!")
+                    raise ValueError
                 if sid in self.__list_sid:
                     print(f"\nID existed, try another one!")
                     raise ValueError
@@ -711,11 +712,14 @@ class Student:
         while True:
             try:
                 print("Enter student birthday: ")
-                sdob = date(
-                    year=int(input("\tYear: ")),
-                    month=int(input("\tMonth: ")),
-                    day=int(input("\tDay: "))
-                )
+                y = input("\tYear: ")
+                m = input("\tMonth: ")
+                d = input("\tDay: ")
+                if not y and not m and not d:
+                    y = 1
+                    m = 1
+                    d = 1
+                sdob = date(int(y), int(m), int(d))
                 break
             except ValueError as ve:
                 print(f"\nInvalid input: {ve}!")
@@ -754,12 +758,16 @@ class Course:
             try:
                 self.get_list_cid()
                 cid = input("Enter course id: ")
+                if not cid:
+                    print("\nCourse id cannot be blank!")
+                    raise ValueError
                 if cid in self.__list_cid:
+                    print(f"\nID existed, try another one!")
                     raise ValueError
                 self.append_list_cid(cid)
                 break
             except ValueError:
-                print(f"\nID existed, try another one!")
+                pass
         self.__cid = cid
 
     def set_cname(self):
@@ -789,14 +797,17 @@ class Mark:
     def set_mval(self):
         while True:
             try:
-                in_mark = float(input("Enter new mark (scale 20): "))
+                mval = input("Enter new mark (scale 20): ")
+                if not mval:
+                    mval = float(0)
+                mval = float(mval)
             except ValueError:
-                in_mark = -1
-            if 0 <= in_mark <= 20:
-                self.__mval = math.floor(in_mark * 10) / 10
+                mval = -1
+            if 0 <= mval <= 20:
+                self.__mval = math.floor(mval * 10) / 10
                 break
             else:
-                print("Invalid option!")
+                print("Invalid option!\n")
 
 
 def main():
