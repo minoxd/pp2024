@@ -1,5 +1,6 @@
 from datetime import date
 import math
+import numpy as np
 
 
 def home(s_list, c_list, m_list):
@@ -266,7 +267,7 @@ def view_update_student(s_list):
     while True:
         print(f"""
         SELECTED STUDENT
-    Student:\t\t\t{get_student_name_id(s_list, s_index)}
+    Student:\t\t{get_student_name_id(s_list, s_index)}
     DOB (YYYY-MM-DD):\t{s_list[s_index].get_sdob()}
 
 [0] Exit
@@ -654,9 +655,9 @@ class Student:
     __list_sid = []
 
     def __init__(self):
-        self.__sid = ""
-        self.__sname = ""
-        self.__sdob = date(1, 1, 1)
+        self.__sid = str
+        self.__sname = str
+        self.__sdob = date
 
     # getters
     def get_list_sid(self):
@@ -689,16 +690,22 @@ class Student:
             try:
                 self.get_list_sid()
                 sid = input("Enter student id: ")
+                if not sid:
+                    print("Student id cannot be blank!")  # todo
                 if sid in self.__list_sid:
+                    print(f"\nID existed, try another one!")
                     raise ValueError
                 self.append_list_sid(sid)
                 break
             except ValueError:
-                print(f"\nID existed, try another one!")
+                pass
         self.__sid = sid
 
     def set_sname(self):
-        self.__sname = input("Enter student name: ")
+        sname = input("Enter student name: ")
+        if not sname:
+            in_sname = "student_name"
+        self.__sname = sname
 
     def set_sdob(self):
         while True:
@@ -719,8 +726,8 @@ class Course:
     __list_cid = []
 
     def __init__(self):
-        self.__cid = ""
-        self.__cname = ""
+        self.__cid = str
+        self.__cname = str
 
     # getters
     def get_list_cid(self):
@@ -756,7 +763,10 @@ class Course:
         self.__cid = cid
 
     def set_cname(self):
-        self.__cname = input("Enter course name: ")
+        in_cname = input("Enter course name: ")
+        if not in_cname:
+            in_cname = "course_name"
+        self.__cname = in_cname
 
 
 class Mark:
@@ -795,7 +805,11 @@ def main():
     c_list = []
     m_list = []
 
-    s_list, c_list, m_list = home(s_list, c_list, m_list)
+    try:
+        s_list, c_list, m_list = home(s_list, c_list, m_list)
+
+    except EOFError as e:
+        print(e)
 
 
 if __name__ == "__main__":
