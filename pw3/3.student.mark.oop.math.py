@@ -584,10 +584,6 @@ class Student:
     def get_sdob(self):
         return self.__sdob
 
-    def get_smark(self, c_list, m_list):
-        self.update_smark(c_list, m_list)
-        return self.__smark
-
     def get_gpa(self, c_list, m_list):
         self.update_gpa(c_list, m_list)
         return self.__gpa
