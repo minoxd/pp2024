@@ -27,3 +27,7 @@ sorted_people_list = people_array[sorted_indices]
 # Accessing objects in the sorted list
 for person in sorted_people_list:
     print(f"{person.name} is {person.age} years old.")
+
+a = 1
+a += 2
+print(a)

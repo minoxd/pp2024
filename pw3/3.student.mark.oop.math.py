@@ -72,7 +72,7 @@ def student(s_list, c_list, m_list):
                 print_list_get_element(s_list, 0, False)
             case 8:
                 obj = Student()
-                obj.get_list_gpa_desc(s_list)
+                obj.get_list_gpa_desc(s_list, c_list, m_list)
             case _:
                 print("Invalid option!")
 
@@ -280,12 +280,17 @@ def view_update_student(s_list, c_list, m_list):
     s_index = s_select - 1
 
     while True:
+        obj = Course()
+        sum_cre = obj.get_sum_cre(c_list)
+
         print(f"""
         SELECTED STUDENT
-    Student:\t\t{get_student_name_id(s_list, s_index)}
-    DOB (YYYY-MM-DD):\t{s_list[s_index].get_sdob()}
-    GPA:\t\t{s_list[s_index].get_gpa(c_list, m_list)}
-    Course mark:""")
+    Student:            {get_student_name_id(s_list, s_index)}
+    DOB (YYYY-MM-DD):   {s_list[s_index].get_sdob()}
+    GPA:                {s_list[s_index].get_gpa(c_list, m_list)}
+    Total credits:      {sum_cre}
+    Course mark:
+""")
         print_s_mark(s_list, s_index, c_list, m_list)
 
         print("""[0] Exit
@@ -316,8 +321,8 @@ def print_s_mark(s_list, s_index, c_list, m_list):
     for c in c_list:
         cid = c.get_cid()
         cname = c.get_cname()
-        mark = next(m.get_mval for m in s_mark if m.get_mcid == cid)
-        print(f"        {cname} (ID: {cid}): {mark}")
+        mark = next(m.get_mval() for m in s_mark if m.get_mcid() == cid)
+        print(f"{cname} (ID: {cid}): {mark}")
 
 
 def course(s_list, c_list, m_list):
@@ -369,22 +374,17 @@ def add_course(s_list, c_list, m_list):
 def del_course(c_list, m_list):
     c_select = print_list_get_element(c_list, 1, True)
     if c_select == 0:
-        return c_list
+        return c_list, m_list
     c_index = c_select - 1
 
     m_list = del_all_mark(c_list, c_index, m_list)
 
     print(f"Deleted course: {get_course_name_id(c_list, c_index)}.")
-    # reduce total credits
-    cre = c_list[c_index].get_cre()
-    c_list[c_index].minus_sum_cre(cre)
     # remove cid from cid list
     cid = c_list[c_index].get_cid()
     c_list[c_index].remove_list_cid(cid)
     # remove obj
     del c_list[c_index]
-    # check empty
-    list_no_element(c_list, 1)
     return c_list, m_list
 
 
@@ -397,14 +397,14 @@ def del_all_mark(c_list, c_index, m_list):
 def view_update_course(s_list, c_list, m_list):
     c_select = print_list_get_element(c_list, 1, True)
     if c_select == 0:
-        return c_list
+        return c_list, m_list
     c_index = c_select - 1
 
     while True:
         print(f"""
         SELECTED COURSE
-    Course:\t\t{get_course_name_id(c_list, c_index)}
-    Credits:\t\t{c_list[c_index].get_cre()}""")
+    Course:             {get_course_name_id(c_list, c_index)}
+    Credits:            {c_list[c_index].get_cre()}""")
         c_mark_status(s_list, c_list, c_index, m_list, 0)
 
         print("""
@@ -435,10 +435,7 @@ def c_mark_status(s_list, c_list, c_index, m_list, mode):
     cid = c_list[c_index].get_cid()
     c_mark = [m for m in m_list if m.get_mcid() == cid]
     # print mark of selected course
-    print("    Mark status:\t", end="")
-    if list_no_element(s_list, 0):
-        return
-    print(f"Marked {len(c_mark)}/{len(s_list)} students.\n")
+    print(f"    Student enrolled:   {len(s_list)}\n")
     match mode:
         case 0:
             c_mark_print_get(s_list, c_mark, False)
@@ -539,7 +536,7 @@ def quick(s_list, c_list, m_list):
                 c_list, m_list = view_update_course(s_list, c_list, m_list)
             case 8:
                 obj = Student()
-                obj.get_list_gpa_desc(s_list)
+                obj.get_list_gpa_desc(s_list, c_list, m_list)
             case _:
                 print("Invalid option!")
 
@@ -566,17 +563,17 @@ class Student:
             return
         print("Used student ids: " + str(self.__list_sid))
 
-    def get_list_gpa_desc(self, s_list):
+    def get_list_gpa_desc(self, s_list, c_list, m_list):
         print("    Student list sorted by GPA descending:")
         list_gpa = []
         if len(self.__list_sid) == 0:
             print("No student added yet!")
             return list_gpa
         s_array = np.array(s_list, dtype=object)
-        sorted_index = np.argsort([-s.get_gpa() for s in s_array])
+        sorted_index = np.argsort([-s.get_gpa(c_list, m_list) for s in s_array])
         sorted_s_list = s_array[sorted_index]
         for s in sorted_s_list:
-            print(f"{s.get_name()} (ID: {s.get_sid()}): {s.get_gpa()}")
+            print(f"{s.get_sname()} (ID: {s.get_sid()}): {s.get_gpa(c_list, m_list)}")
 
     def get_sid(self):
         return self.__sid
@@ -665,7 +662,10 @@ class Student:
         numpy_cre = np.array([
             c.get_cre() for c in c_list
         ])
-        self.__gpa = math.floor(np.sum(numpy_smark * numpy_cre) * 10) / 10
+        obj = Course()
+        sum_cre = obj.get_sum_cre(c_list)
+        if sum_cre != 0:
+            self.__gpa = math.floor(np.sum(numpy_smark * numpy_cre) / sum_cre * 10) / 10
 
 
 class Course:
@@ -687,7 +687,10 @@ class Course:
             return
         print("Used course ids: " + str(self.__list_cid))
 
-    def get_sum_cre(self):
+    def get_sum_cre(self, c_list):
+        self.__sum_cre: int = 0
+        for c in c_list:
+            self.__sum_cre += c.get_cre()
         return self.__sum_cre
 
     def get_cid(self):
@@ -705,12 +708,6 @@ class Course:
 
     def remove_list_cid(self, cid):
         self.__list_cid.remove(cid)
-
-    def add_sum_cre(self, cre):
-        self.__sum_cre += cre
-
-    def minus_sum_cre(self, cre):
-        self.__sum_cre -= cre
 
     def set_cid(self):
         while True:
@@ -736,14 +733,12 @@ class Course:
         self.__cname = cname
 
     def set_cre(self):
-        self.minus_sum_cre(self.__cre)
         while True:
             try:
                 cre = input("Enter credit value: ")
                 if not cre:
                     cre = self.__default_cre
                 cre = int(cre)
-                self.add_sum_cre(cre)
                 break
             except ValueError:
                 print(f"\nInvalid input!")
