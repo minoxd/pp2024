@@ -5,7 +5,7 @@ from datetime import date
 # todo private method
 # todo only change, no add mark
 # todo a mark for course not found, use default
-def home(s_list, c_list):
+def home(s_list, c_list, m_list):
     while True:
         print("""
         STUDENT MARK PROGRAM
@@ -68,13 +68,14 @@ class Student:
     def get_smark(self):
         return self.__smark
 
-    def get_gpa(self):
+    def get_gpa(self, c_list):
         if len(self.__smark) == 0:
             return self.__default_gpa
+        numpy_smark = [
+            m.get_mval() for m in self.__smark
+        ]
         c = Course()
-        # todo
-        for m in self.__smark:
-            pass
+
         self.__gpa = 0
         return self.__gpa
 
@@ -127,14 +128,10 @@ class Student:
                 print(f"\nInvalid input: {ve}!")
         self.__sdob = sdob
 
-    def append_smark(self, smark):
-        self.__smark.append(smark)
+    def set_smark(self, c_list, m_list):
+        """reset student mark list by get sorted mark of each course according to c_list (or list_cid)"""
+        list_cid = [c.get_cid() for c in c_list]
 
-    def remove_smark(self, smark):
-        self.__smark.remove(smark)
-
-    def delete_smark(self):
-        self.__smark.clear()
 
 
 class Course:
@@ -254,9 +251,10 @@ def main():
     # init
     s_list = []
     c_list = []
+    m_list = []
 
     try:
-        s_list, c_list = home(s_list, c_list)
+        s_list, c_list, m_list = home(s_list, c_list, m_list)
 
     except EOFError as e:
         print(e)
