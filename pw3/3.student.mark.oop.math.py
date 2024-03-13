@@ -4,8 +4,6 @@ import numpy as np
 
 
 # todo private method
-# todo when new course, add default marks for all student to m_list
-# todo only change, no add mark because mark auto assigned
 def home(s_list, c_list, m_list):
     while True:
         print("""
@@ -48,6 +46,7 @@ def student(s_list, c_list, m_list):
 [5] Delete all
 [6] View/Update an existing student
 [7] List all students
+[8] Sort student by GPA descending
 """)
         try:
             select = int(input("Enter your choice: "))
@@ -59,7 +58,7 @@ def student(s_list, c_list, m_list):
             case 1:
                 s_list, m_list = add_student(s_list, c_list, m_list)
             case 2:
-                s_list = add_n_student(s_list)
+                s_list, m_list = add_n_student(s_list, c_list, m_list)
             case 3:
                 s_list, m_list = del_student(s_list, m_list)
             case 4:
@@ -71,6 +70,9 @@ def student(s_list, c_list, m_list):
                 s_list, c_list, m_list = view_update_student(s_list, c_list, m_list)
             case 7:
                 print_list_get_element(s_list, 0, False)
+            case 8:
+                obj = Student()
+                obj.get_list_gpa_desc(s_list)
             case _:
                 print("Invalid option!")
 
@@ -91,7 +93,7 @@ def add_student(s_list, c_list, m_list):
     return s_list, m_list
 
 
-def add_n_student(s_list):
+def add_n_student(s_list, c_list, m_list):
     while True:
         try:
             times = int(input("""
@@ -106,9 +108,9 @@ Enter number of new students: """))
         else:
             for i in range(times):
                 print(f"\nEnter information for the {ordinal(i + 1)} student: ")
-                s_list = add_student(s_list)
+                s_list, m_list = add_student(s_list, c_list, m_list)
             break
-    return s_list
+    return s_list, m_list
 
 
 def ordinal(n: int):
@@ -282,7 +284,7 @@ def view_update_student(s_list, c_list, m_list):
         SELECTED STUDENT
     Student:\t\t{get_student_name_id(s_list, s_index)}
     DOB (YYYY-MM-DD):\t{s_list[s_index].get_sdob()}
-    GPA:\t{s_list[s_index].get_gpa()}
+    GPA:\t\t{s_list[s_index].get_gpa(c_list, m_list)}
     Course mark:""")
         print_s_mark(s_list, s_index, c_list, m_list)
 
@@ -341,7 +343,7 @@ def course(s_list, c_list, m_list):
             case 2:
                 c_list, m_list = del_course(c_list, m_list)
             case 3:
-                c_list = view_update_course(s_list, c_list, m_list)
+                c_list, m_list = view_update_course(s_list, c_list, m_list)
             case 4:
                 print_list_get_element(c_list, 1, False)
             case _:
@@ -401,13 +403,15 @@ def view_update_course(s_list, c_list, m_list):
     while True:
         print(f"""
         SELECTED COURSE
-    Course:\t\t{get_course_name_id(c_list, c_index)}""")
-        print_c_mark(s_list, c_list, c_index, m_list, 0)
+    Course:\t\t{get_course_name_id(c_list, c_index)}
+    Credits:\t\t{c_list[c_index].get_cre()}""")
+        c_mark_status(s_list, c_list, c_index, m_list, 0)
 
         print("""
 [0] Exit
 [1] Change course name
-[2] Update mark
+[2] Change number of credits
+[3] Update mark
 """)
         try:
             select = int(input("Enter your choice: "))
@@ -415,17 +419,19 @@ def view_update_course(s_list, c_list, m_list):
             select = -1
         match select:
             case 0:
-                return c_list
+                return c_list, m_list
             case 1:
                 c_list[c_index].set_cname()
             case 2:
-                m_list = mark(s_list, c_list, c_index, m_list)
+                c_list[c_index].set_cre()
+            case 3:
+                m_list = update_mark(s_list, c_list, c_index, m_list)
             case _:
                 print("Invalid option!")
 
 
-def print_c_mark(s_list, c_list, c_index, m_list, mode):
-    # get list mark of selected course
+def c_mark_status(s_list, c_list, c_index, m_list, mode):
+    # get list mark obj of selected course
     cid = c_list[c_index].get_cid()
     c_mark = [m for m in m_list if m.get_mcid() == cid]
     # print mark of selected course
@@ -435,14 +441,107 @@ def print_c_mark(s_list, c_list, c_index, m_list, mode):
     print(f"Marked {len(c_mark)}/{len(s_list)} students.\n")
     match mode:
         case 0:
-            updatable(s_list, c_mark, 0)
-            addable(s_list, c_mark, 0)
+            c_mark_print_get(s_list, c_mark, False)
         case 1:
-            return updatable(s_list, c_mark, 1)
-        case 2:
-            return addable(s_list, c_mark, 1)
-        case 3:
-            pass  # return updatable(s_list, c_mark, 2)
+            return c_mark_print_get(s_list, c_mark, True)
+
+
+def c_mark_print_get(s_list, c_mark, mode: bool):
+    match mode:
+        case False:
+            for s in s_list:
+                mark_obj = next(m for m in c_mark if m.get_msid() == s.get_sid())
+                print(f"{s.get_sname()} (ID: {s.get_sid()}): {mark_obj.get_mval()}")
+        case True:
+            while True:
+                print("[0] Exit")
+                for i in range(len(s_list)):
+                    mark_obj = next(m for m in c_mark if m.get_msid() == s_list[i].get_sid())
+                    print(f"[{i + 1}] {s_list[i].get_sname()} (ID: {s_list[i].get_sid()}): {mark_obj.get_mval()}")
+                try:
+                    s_select = int(input("Enter your choice: "))
+                except ValueError:
+                    s_select = -1
+                if 0 <= s_select <= len(s_list):
+                    s_index = s_select - 1
+                    if s_index == -1:
+                        return -1
+                    # return selected student's id
+                    return s_list[s_index].get_sid()
+                else:
+                    print("Invalid option!\n")
+
+
+def update_mark(s_list, c_list, c_index, m_list):
+    cid = c_list[c_index].get_cid()
+    if list_no_element(s_list, 0):
+        return m_list
+    print("""
+        UPDATE MARK
+""")
+    sid = c_mark_status(s_list, c_list, c_index, m_list, 1)
+    if sid == -1:
+        return m_list
+
+    s_select = next(s for s in s_list if s.get_sid() == sid)
+    for m in m_list:
+        if m.get_msid() == sid and m.get_mcid() == cid:
+            m.set_mval()
+    print(f"Updated mark of {s_select.get_sname()}")
+
+    return m_list
+
+
+def quick(s_list, c_list, m_list):
+    while True:
+        print("""
+        QUICK OPTIONS
+
+[0] Exit
+
+    INPUT
+[1] Add a new student
+[2] Add multiple students
+[3] Add a new course
+[4] Change mark for a student
+
+    LIST
+[5] List all courses
+[6] List all students
+[7] View/Update an existing course
+[8] Sort student by GPA descending
+    """)
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return s_list, c_list, m_list
+            case 1:
+                s_list, m_list = add_student(s_list, c_list, m_list)
+            case 2:
+                s_list, m_list = add_n_student(s_list, c_list, m_list)
+            case 3:
+                c_list, m_list = add_course(s_list, c_list, m_list)
+            case 4:
+                c_select = print_list_get_element(c_list, 1, True)
+                if c_select == 0:
+                    return c_list
+                c_index = c_select - 1
+
+                m_list = update_mark(s_list, c_list, c_index, m_list)
+            case 5:
+                print_list_get_element(c_list, 1, False)
+            case 6:
+                print_list_get_element(s_list, 0, False)
+            case 7:
+                c_list, m_list = view_update_course(s_list, c_list, m_list)
+            case 8:
+                obj = Student()
+                obj.get_list_gpa_desc(s_list)
+            case _:
+                print("Invalid option!")
 
 
 class Student:
@@ -466,6 +565,18 @@ class Student:
             print("No student id used yet!")
             return
         print("Used student ids: " + str(self.__list_sid))
+
+    def get_list_gpa_desc(self, s_list):
+        print("    Student list sorted by GPA descending:")
+        list_gpa = []
+        if len(self.__list_sid) == 0:
+            print("No student added yet!")
+            return list_gpa
+        s_array = np.array(s_list, dtype=object)
+        sorted_index = np.argsort([-s.get_gpa() for s in s_array])
+        sorted_s_list = s_array[sorted_index]
+        for s in sorted_s_list:
+            print(f"{s.get_name()} (ID: {s.get_sid()}): {s.get_gpa()}")
 
     def get_sid(self):
         return self.__sid
@@ -625,6 +736,7 @@ class Course:
         self.__cname = cname
 
     def set_cre(self):
+        self.minus_sum_cre(self.__cre)
         while True:
             try:
                 cre = input("Enter credit value: ")

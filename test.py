@@ -1,15 +1,29 @@
-import math
-
 import numpy as np
 
-numpy_score = np.array([20, 18, 16])
-numpy_score_weight = np.array([.1, .3, .6])
 
-print(numpy_score * numpy_score_weight)
-print(math.floor(np.sum(numpy_score * numpy_score_weight) * 10) / 10)
-print(20 * .1 + 18 * .3 + 16 * .6)
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
 
-a = [1, 2]
-b = a[array[(2, 1)]]
-print(a)
-print(b)
+
+# Creating instances of the Person class
+person1 = Person("Alice", 25)
+person2 = Person("Bob", 30)
+person3 = Person("Charlie", 22)
+
+# Creating a list of objects
+people_list = [person1, person2, person3]
+
+# Converting the list of objects to a NumPy array
+people_array = np.array(people_list, dtype=object)
+
+# Sorting the array based on the 'age' attribute
+sorted_indices = np.argsort([person.age for person in people_array])
+
+# Creating a sorted list of objects
+sorted_people_list = people_array[sorted_indices]
+
+# Accessing objects in the sorted list
+for person in sorted_people_list:
+    print(f"{person.name} is {person.age} years old.")
