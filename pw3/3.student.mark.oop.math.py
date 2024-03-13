@@ -102,7 +102,7 @@ Enter number of new students: """))
         except ValueError:
             times = -1
         if times == 0:
-            return s_list
+            return s_list, m_list
         if times < 0:
             print("Invalid input!")
         else:
@@ -124,7 +124,7 @@ def ordinal(n: int):
 def del_student(s_list, m_list):
     s_select = print_list_get_element(s_list, 0, True)
     if s_select == 0:
-        return s_list
+        return s_list, m_list
     s_index = s_select - 1
 
     print(f"Deleted {get_student_name_id(s_list, s_index)}.")
@@ -230,7 +230,7 @@ Enter number of students to be deleted: """))
         except ValueError:
             times = -1
         if times == 0:
-            return s_list
+            return s_list, m_list
         if times < 0 or times > len(s_list):
             print("Invalid input!")
         else:
@@ -276,7 +276,7 @@ def del_all_elements(the_list, mode):
 def view_update_student(s_list, c_list, m_list):
     s_select = print_list_get_element(s_list, 0, True)
     if s_select == 0:
-        return s_list
+        return s_list, c_list, m_list
     s_index = s_select - 1
 
     while True:
@@ -299,7 +299,7 @@ def view_update_student(s_list, c_list, m_list):
             select = -1
         match select:
             case 0:
-                return s_list
+                return s_list, c_list, m_list
             case 1:
                 s_list[s_index].set_sname()
             case 2:
