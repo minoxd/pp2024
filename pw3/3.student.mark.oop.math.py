@@ -1,4 +1,5 @@
 import math
+import sys
 from datetime import date
 import numpy as np
 
@@ -792,4 +793,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nForced to exit using keyboard!")
+        sys.exit(0)
