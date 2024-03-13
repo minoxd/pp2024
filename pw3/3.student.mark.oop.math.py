@@ -1,10 +1,11 @@
 import math
 from datetime import date
+import numpy as np
 
 
 # todo private method
-# todo only change, no add mark
-# todo a mark for course not found, use default
+# todo when new course, add default marks for all student to m_list
+# todo only change, no add mark because mark auto assigned
 def home(s_list, c_list, m_list):
     while True:
         print("""
@@ -32,6 +33,82 @@ def home(s_list, c_list, m_list):
                 s_list, c_list, m_list = quick(s_list, c_list, m_list)
             case _:
                 print("Invalid option!")
+
+
+def student(s_list, m_list):
+    while True:
+        print(f"""
+        STUDENT LIST 
+
+[0] Exit
+[1] Add a new student
+[2] Add multiple students
+[3] Delete a student
+[4] Delete multiple students
+[5] Delete all
+[6] View/Update an existing student
+[7] List all students
+""")
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return s_list, m_list
+            case 1:
+                s_list = add_student(s_list)
+            case 2:
+                s_list = add_n_student(s_list)
+            case 3:
+                s_list, m_list = del_student(s_list, m_list)
+            case 4:
+                s_list, m_list = del_n_student(s_list, m_list)
+            case 5:
+                s_list = del_all_elements(s_list, 0)
+            case 6:
+                s_list = view_update_student(s_list)
+            case 7:
+                print_list_get_element(s_list, 0, False)
+            case _:
+                print("Invalid option!")
+
+
+def add_student(s_list):
+    new_s = Student()
+    new_s.set_sid()
+    new_s.set_sname()
+    new_s.set_sdob()
+    s_list.append(new_s)
+    return s_list
+
+
+def add_n_student(s_list):
+    while True:
+        try:
+            times = int(input("""
+[0] Exit
+Enter number of new students: """))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return s_list
+        if times < 0:
+            print("Invalid input!")
+        else:
+            for i in range(times):
+                print(f"\nEnter information for the {ordinal(i + 1)} student: ")
+                s_list = add_student(s_list)
+            break
+    return s_list
+
+
+def ordinal(n: int):
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    return str(n) + suffix
 
 
 class Student:
@@ -65,18 +142,12 @@ class Student:
     def get_sdob(self):
         return self.__sdob
 
-    def get_smark(self):
+    def get_smark(self, c_list, m_list):
+        self.update_smark(c_list, m_list)
         return self.__smark
 
-    def get_gpa(self, c_list):
-        if len(self.__smark) == 0:
-            return self.__default_gpa
-        numpy_smark = [
-            m.get_mval() for m in self.__smark
-        ]
-        c = Course()
-
-        self.__gpa = 0
+    def get_gpa(self, c_list, m_list):
+        self.update_gpa(c_list, m_list)
         return self.__gpa
 
     # setters
@@ -128,10 +199,26 @@ class Student:
                 print(f"\nInvalid input: {ve}!")
         self.__sdob = sdob
 
-    def set_smark(self, c_list, m_list):
-        """reset student mark list by get sorted mark of each course according to c_list (or list_cid)"""
+    def update_smark(self, c_list, m_list):
+        """reset and get sorted mark of each course according to c_list (or list_cid)"""
+        self.__smark.clear()
         list_cid = [c.get_cid() for c in c_list]
+        for cid in list_cid:
+            self.__smark.append(
+                next(m.get_mval() for m in m_list if m.get_cid() == cid)
+            )
 
+    def update_gpa(self, c_list, m_list):
+        """reset and calc new gpa based on new smark"""
+        self.update_smark(c_list, m_list)
+
+        numpy_smark = np.array([
+            mval for mval in self.__smark
+        ])
+        numpy_cre = np.array([
+            c.get_cre() for c in c_list
+        ])
+        self.__gpa = math.floor(np.sum(numpy_smark * numpy_cre) * 10) / 10
 
 
 class Course:
