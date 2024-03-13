@@ -66,6 +66,7 @@ def student(s_list, m_list):
                 s_list, m_list = del_n_student(s_list, m_list)
             case 5:
                 s_list = del_all_elements(s_list, 0)
+                m_list = []
             case 6:
                 s_list = view_update_student(s_list)
             case 7:
@@ -109,6 +110,192 @@ def ordinal(n: int):
     else:
         suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
     return str(n) + suffix
+
+
+def del_student(s_list, m_list):
+    s_select = print_list_get_element(s_list, 0, True)
+    if s_select == 0:
+        return s_list
+    s_index = s_select - 1
+
+    print(f"Deleted {get_student_name_id(s_list, s_index)}.")
+    sid = s_list[s_index].get_sid()
+    # remove their marks
+    their_mark = [m for m in m_list if m.get_msid() == sid]
+    for i in their_mark:
+        m_list.remove(i)
+    # remove their sid from sid list
+    s_list[s_index].remove_list_sid(sid)
+
+    del s_list[s_index]
+    list_no_element(s_list, 0)
+    return s_list, m_list
+
+
+def print_list_get_element(the_list: list, mode, get: bool):
+    if list_no_element(the_list, mode):
+        return 0
+    label1 = [
+        "STUDENT LIST",
+        "COURSE LIST"
+    ]
+    func1 = [
+        get_student_name_id,
+        get_course_name_id
+    ]
+    if get:
+        return get_element_true(the_list, mode, label1, func1)
+    else:
+        get_element_false(the_list, mode, label1, func1)
+
+
+def list_no_element(the_list, mode):
+    num_element = len(the_list)
+    label1 = [
+        "student in the class",
+        "course available",
+        "mark"
+    ]
+    if num_element < 1:
+        print(f"There is no {label1[mode]}.")
+        return True
+    return False
+
+
+def get_student_name_id(s_list, s_index):
+    the_name = s_list[s_index].get_sname()
+    the_id = s_list[s_index].get_sid()
+    return f"{the_name} (ID: {the_id})"
+
+
+def get_course_name_id(c_list, c_index):
+    the_name = c_list[c_index].get_cname()
+    the_id = c_list[c_index].get_cid()
+    return f"{the_name} (ID: {the_id})"
+
+
+def get_element_true(the_list, mode, label1, func1):
+    num_element = len(the_list)
+    while True:
+        print(f"""
+        {label1[mode]}
+
+[0] Exit""")
+        for i in range(num_element):
+            name_id = func1[mode](the_list, i)
+            print(f"[{i + 1}] {name_id}")
+        print()
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        if 0 <= select <= num_element:
+            return select
+        else:
+            print("Invalid option!")
+
+
+def get_element_false(the_list, mode, label1, func1):
+    num_element = len(the_list)
+    label2 = [
+        "students",
+        "courses"
+    ]
+    print(f"""
+        {label1[mode]}
+
+    Number of {label2[mode]}: {num_element}
+    Listing all {label2[mode]}:""")
+    for i in range(num_element):
+        name_id = func1[mode](the_list, i)
+        print(f"{name_id}")
+    return
+
+
+def del_n_student(s_list, m_list):
+    while True:
+        try:
+            times = int(input("""
+[0] Exit
+Enter number of students to be deleted: """))
+        except ValueError:
+            times = -1
+        if times == 0:
+            return s_list
+        if times < 0 or times > len(s_list):
+            print("Invalid input!")
+        else:
+            for i in range(times):
+                print(f"The {ordinal(i + 1)} student to be deleted: ")
+                s_list = del_student(s_list, m_list)
+            break
+    return s_list, m_list
+
+
+def del_all_elements(the_list, mode):
+    key = "yesyesyes"
+    label1 = [
+        "STUDENTS IN THE CLASS",
+        "MARKS IN THE COURSE"
+    ]
+    while True:
+        print(f"""
+        WARNING: THIS PROCESS CANNOT BE UNDONE
+        ARE YOU SURE YOU WANT TO DELETE ALL {label1[mode]}?
+
+[0] Exit
+[!] Type "{key}" to confirm the deletion
+""")
+        answer = input("Enter your answer: ")
+        if answer == "0":
+            return the_list
+        if answer == key:
+            list_no_element(the_list, mode)
+            match mode:
+                case 0:
+                    delete = Student()
+                    delete.delete_list_sid()
+                    the_list = []
+                    # if no student then no mark
+                    # all mark are deleted in the parent function
+                case 1:
+                    pass
+            return the_list
+        print("Invalid input!")
+
+
+def view_update_student(s_list):
+    s_select = print_list_get_element(s_list, 0, True)
+    if s_select == 0:
+        return s_list
+    s_index = s_select - 1
+
+    while True:
+        print(f"""
+        SELECTED STUDENT
+    Student:\t\t{get_student_name_id(s_list, s_index)}
+    DOB (YYYY-MM-DD):\t{s_list[s_index].get_sdob()}
+    GPA:\t{s_list[s_index].get_gpa()}
+    Course mark:""")
+    # todo print mark of a student
+
+print("""[0] Exit
+[1] Change name
+[2] Change dob
+""")
+        try:
+            select = int(input("Enter your choice: "))
+        except ValueError:
+            select = -1
+        match select:
+            case 0:
+                return s_list
+            case 1:
+                s_list[s_index].set_sname()
+            case 2:
+                s_list[s_index].set_sdob()
+            case _:
+                print("Invalid option!")
 
 
 class Student:
@@ -203,9 +390,11 @@ class Student:
         """reset and get sorted mark of each course according to c_list (or list_cid)"""
         self.__smark.clear()
         list_cid = [c.get_cid() for c in c_list]
+        # get mark obj of student
+        s_mark = [m for m in m_list if m.get_msid() == self.__sid]
         for cid in list_cid:
             self.__smark.append(
-                next(m.get_mval() for m in m_list if m.get_cid() == cid)
+                next(m.get_mval() for m in s_mark if m.get_mcid() == cid)
             )
 
     def update_gpa(self, c_list, m_list):
@@ -305,11 +494,15 @@ class Mark:
     """Store locally in each student"""
     __default_mval: float = math.floor(0 * 10) / 10
 
-    def __init__(self, mcid):
+    def __init__(self, msid, mcid):
+        self.__msid = msid
         self.__mcid = mcid
         self.__mval = self.__default_mval
 
     # getters
+    def get_msid(self):
+        return self.__msid
+
     def get_mcid(self):
         return self.__mcid
 
