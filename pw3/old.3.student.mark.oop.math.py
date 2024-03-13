@@ -1,6 +1,6 @@
 from datetime import date
 import math
-import numpy as np
+# import numpy as np
 
 
 def home(s_list, c_list, m_list):
@@ -354,7 +354,7 @@ def view_update_course(s_list, c_list, m_list):
         print(f"""
         SELECTED COURSE
     Course:\t\t{get_course_name_id(c_list, c_index)}""")
-        print_mark(s_list, c_list, c_index, m_list, 0)
+        print_c_mark(s_list, c_list, c_index, m_list, 0)
 
         print("""
 [0] Exit
@@ -376,7 +376,7 @@ def view_update_course(s_list, c_list, m_list):
                 print("Invalid option!")
 
 
-def print_mark(s_list, c_list, c_index, m_list, mode):
+def print_c_mark(s_list, c_list, c_index, m_list, mode):
     cid = c_list[c_index].get_cid()
     c_mark = [m for m in m_list if m.get_mcid() == cid]
     print("    Mark status:\t", end="")
@@ -458,7 +458,7 @@ def mark(s_list, c_list, c_index, m_list):
         print()
         if list_no_element(s_list, 0):
             return m_list
-        print_mark(s_list, c_list, c_index, m_list, 0)
+        print_c_mark(s_list, c_list, c_index, m_list, 0)
         print("""
 [0] Exit
 [1] Add mark for a student
@@ -495,7 +495,7 @@ def add_mark(s_list, c_list, c_index, m_list):
     print("""
         ADD MARK
 """)
-    sid = print_mark(s_list, c_list, c_index, m_list, 2)
+    sid = print_c_mark(s_list, c_list, c_index, m_list, 2)
     if sid == -1:
         return m_list
     new_m = Mark(
@@ -538,7 +538,7 @@ def del_mark(s_list, c_list, c_index, m_list):
     print("""
         DELETE MARK
 """)
-    sid = print_mark(s_list, c_list, c_index, m_list, 1)
+    sid = print_c_mark(s_list, c_list, c_index, m_list, 1)
     if sid == -1:
         return m_list
     who = next(m for m in c_mark if m.get_msid() == sid)
@@ -585,7 +585,7 @@ def update_mark(s_list, c_list, c_index, m_list):
     print("""
         UPDATE MARK
 """)
-    sid = print_mark(s_list, c_list, c_index, m_list, 1)
+    sid = print_c_mark(s_list, c_list, c_index, m_list, 1)
     if sid == -1:
         return m_list
 
@@ -646,7 +646,7 @@ def quick(s_list, c_list, m_list):
                     return c_list
                 c_index = c_select - 1
 
-                print_mark(s_list, c_list, c_index, m_list, 0)
+                print_c_mark(s_list, c_list, c_index, m_list, 0)
             case _:
                 print("Invalid option!")
 
