@@ -1,25 +1,29 @@
 import curses
-import sys
+import time
 from curses import wrapper
 
 
 def main(stdscr):
-    curses.initscr()
-    curses.newwin(1, curses.COLOR_WHITE, curses)
-    stdscr.clear()
-    stdscr.addstr(10, 10, "hello world", curses.A_BOLD)
-    stdscr.addstr(15, 25, "at is great")
+    # curses.init_color(0, 0, 0, 0)
+    # curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_YELLOW)
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLUE)
+    BLUE_AND_YELLOW = curses.color_pair(1)
+    GREEN_AND_BLACK = curses.color_pair(2)
+
+    pad = curses.newpad(100, 100)
     stdscr.refresh()
+    for i in range(100):
+        for j in range(26):
+            char = chr(67+j)
+            pad.addstr(char)
+    for i in range(50):
+        stdscr.clear()
+        stdscr.refresh()
+        pad.refresh(0, i, 0, i, 25, 25 + i)
+        time.sleep(.1)
     stdscr.getch()
 
 
 wrapper(main)
-
-
-if __name__ == "__main__":
-    try:
-        main(stdscr=curses.initscr())
-    except KeyboardInterrupt:
-        print("\n\nForced to exit using keyboard!")
-        sys.exit(0)
 
