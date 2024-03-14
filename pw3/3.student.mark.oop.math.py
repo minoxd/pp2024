@@ -4,7 +4,6 @@ from datetime import date
 import numpy as np
 
 
-# todo private method
 def home(s_list, c_list, m_list):
     while True:
         print("""
@@ -22,7 +21,7 @@ def home(s_list, c_list, m_list):
         match select:
             case 0:
                 print("""
-        THANK YOU FOR USING MY PROGRAMME!!""")
+        THANK YOU FOR USING MY PROGRAM!!""")
                 return s_list, c_list, m_list
             case 1:
                 s_list, c_list, m_list = student(s_list, c_list, m_list)

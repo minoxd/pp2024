@@ -1,28 +1,36 @@
 import curses
-import time
 from curses import wrapper
+from curses.textpad import Textbox
+error = []
+warn = []
+
+def menu_home(stdscr):
+    option = [
+        "Exit",
+        "Students",
+        "Courses",
+        "Quick options"
+    ]
+
+    stdscr.addstr(1, 8, "STUDENT MARK PROGRAM")
+    for i in range(4):
+        stdscr.addstr(3 + i, 0, f"[{i}] {option[i]}")
+    stdscr.addstr(8, 0, "Enter your choice: ")
+    win = curses.newwin(1, 20, 8, 19)
+    box = Textbox(win)
+    stdscr.refresh()
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    text = box.gather()
+    stdscr.addstr(10, 0, f"{str(type(int(text)))}: {text}")
+    stdscr.getch()
 
 
 def main(stdscr):
-    # curses.init_color(0, 0, 0, 0)
-    # curses.use_default_colors()
-    curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_YELLOW)
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLUE)
-    BLUE_AND_YELLOW = curses.color_pair(1)
-    GREEN_AND_BLACK = curses.color_pair(2)
-
-    pad = curses.newpad(100, 100)
-    stdscr.refresh()
-    for i in range(100):
-        for j in range(26):
-            char = chr(67+j)
-            pad.addstr(char)
-    for i in range(50):
-        stdscr.clear()
-        stdscr.refresh()
-        pad.refresh(0, i, 0, i, 25, 25 + i)
-        time.sleep(.1)
-    stdscr.getch()
+    curses.use_default_colors()
+    curses.curs_set(0)
+    menu_home(stdscr)
 
 
 wrapper(main)
