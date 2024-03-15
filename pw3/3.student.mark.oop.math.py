@@ -1,88 +1,192 @@
+import curses
+from curses import wrapper
+from curses.textpad import Textbox
 import math
-import sys
-from datetime import date
 import numpy as np
-# len<=10
+import time
+from datetime import date
+# todo len string <=10 and len list <=20
 
 
-def home(s_list, c_list, m_list):
+def test_screen(stdscr):
     while True:
-        print("""
-        STUDENT MARK PROGRAM
-
-[0] Exit
-[1] Students
-[2] Courses
-[3] Quick options
-""")
         try:
-            select = int(input("Enter your choice: "))
+            pad = curses.newpad(25, 50)
+            stdscr.refresh()
+
+            for i in range(1249):
+                pad.addstr(" ")
+
+            for i in range(50):
+                stdscr.clear()
+                stdscr.refresh()
+                pad.refresh(0, 0, 0, 0, 0 + i, 0 + i)
+                time.sleep(.0001)
+            stdscr.clear()
+            stdscr.refresh()
+            height, width = stdscr.getmaxyx()
+            label = [
+                "Try not to adjust the size",
+                "of the window while using!"
+            ]
+            for i in range(2):
+                stdscr.addstr(height//2-1 + i, width//2 - len(label[i])//2, label[i], curses.color_pair(1))
+            stdscr.refresh()
+            stdscr.getch()
+            del pad
+            break
+        except curses.error:
+            stdscr.clear()
+            stdscr.refresh()
+            stdscr.addstr(0, 0, "Please make your window larger!", curses.color_pair(1))
+            stdscr.addstr(1, 0, "Ideally at least 50x20", curses.color_pair(2))
+            stdscr.getch()
+
+
+def home(stdscr, s_list, c_list, m_list):
+    stdscr.clear()
+    stdscr.refresh()
+    y_mode = 0
+    while True:
+        curses_home(stdscr)
+        try:
+            select = int(ask_menu_choice(y_mode))
         except ValueError:
             select = -1
         match select:
             case 0:
-                print("""
-        THANK YOU FOR USING MY PROGRAM!!""")
+                curses_home_exit(stdscr)
                 return s_list, c_list, m_list
             case 1:
-                s_list, c_list, m_list = student(s_list, c_list, m_list)
+                s_list, c_list, m_list = student(stdscr, s_list, c_list, m_list)
             case 2:
-                s_list, c_list, m_list = course(s_list, c_list, m_list)
+                s_list, c_list, m_list = course(stdscr, s_list, c_list, m_list)
             case 3:
-                s_list, c_list, m_list = quick(s_list, c_list, m_list)
+                s_list, c_list, m_list = quick(stdscr, s_list, c_list, m_list)
             case _:
-                print("Invalid option!")
+                invalid_choice(stdscr, y_mode)
 
 
-def student(s_list, c_list, m_list):
+def curses_home(stdscr):
+    option = [
+        "Exit",
+        "Students",
+        "Courses",
+        "Quick options"
+    ]
+    stdscr.clear()
+    stdscr.addstr(1, 8, "STUDENT MARK PROGRAM")
+    for i in range(4):
+        stdscr.addstr(3 + i, 0, f"[{i}] {option[i]}")
+
+    stdscr.addstr(8, 0, "Enter your choice: ")
+    stdscr.refresh()
+
+
+def ask_menu_choice(y_mode):
+    y = y_choice(y_mode)
+    win = curses.newwin(1, 2, y, 19)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    select = box.gather()
+    return select
+
+
+def curses_home_exit(stdscr):
+    stdscr.clear()
+    height, width = stdscr.getmaxyx()
+    label = "THANK YOU FOR USING MY PROGRAM!!!"
+    stdscr.addstr(height // 2 - 1, width // 2 - len(label) // 2, label, curses.color_pair(2))
+    stdscr.refresh()
+    stdscr.getch()
+
+
+def invalid_choice(stdscr, y_mode):
+    y = y_choice(y_mode)
+    stdscr.addstr(y, 0, "Enter your choice: ", curses.color_pair(1))
+    stdscr.refresh()
+    time.sleep(.1)
+
+
+def y_choice(y_mode):
+    match y_mode:
+        case 0:  # home
+            y = 8
+        case 1:  # student
+            y = 13
+        case 2:  # n_items
+            y = 6
+        case 3:  # once
+            y = 3
+        case _:
+            y = -1
+    return y
+
+
+def student(stdscr, s_list, c_list, m_list):
+    stdscr.clear()
+    stdscr.refresh()
+    y_mode = 1
     while True:
-        print(f"""
-        STUDENT LIST 
-
-[0] Exit
-[1] Add a new student
-[2] Add multiple students
-[3] Delete a student
-[4] Delete multiple students
-[5] Delete all
-[6] View/Update an existing student
-[7] List all students
-[8] Sort student by GPA descending
-""")
+        curses_student(stdscr)
         try:
-            select = int(input("Enter your choice: "))
+            select = int(ask_menu_choice(y_mode))
         except ValueError:
             select = -1
         match select:
             case 0:
                 return s_list, c_list, m_list
             case 1:
-                s_list, m_list = add_student(s_list, c_list, m_list)
+                s_list, m_list = add_student(stdscr, s_list, c_list, m_list)
             case 2:
-                s_list, m_list = add_n_student(s_list, c_list, m_list)
+                s_list, m_list = add_n_student(stdscr, s_list, c_list, m_list)
             case 3:
-                s_list, m_list = del_student(s_list, m_list)
+                s_list, m_list = del_student(stdscr, s_list, m_list)
             case 4:
-                s_list, m_list = del_n_student(s_list, m_list)
+                s_list, m_list = del_n_student(stdscr, s_list, m_list)
             case 5:
-                s_list = del_all_elements(s_list, 0)
+                s_list = del_all_elements(stdscr, s_list, 0)
                 m_list = []
             case 6:
-                s_list, c_list, m_list = view_update_student(s_list, c_list, m_list)
+                s_list, c_list, m_list = view_update_student(stdscr, s_list, c_list, m_list)
             case 7:
-                print_list_get_element(s_list, 0, False)
+                print_list_get_element(stdscr, s_list, 0, False)
             case 8:
                 obj = Student()
-                obj.get_list_gpa_desc(s_list, c_list, m_list)
+                obj.get_list_gpa_desc(stdscr, s_list, c_list, m_list)
             case _:
-                print("Invalid option!")
+                invalid_choice(stdscr, y_mode)
 
 
-def add_student(s_list, c_list, m_list):
+def curses_student(stdscr):
+    option = [
+        "Exit",
+        "Add a new student",
+        "Add multiple students",
+        "Delete a student",
+        "Delete multiple students",
+        "Delete all",
+        "View/Update an existing student",
+        "List all students",
+        "Sort student by GPA descending",
+    ]
+    stdscr.clear()
+    stdscr.addstr(1, 8, "STUDENT LIST")
+    for i in range(9):
+        stdscr.addstr(3 + i, 0, f"[{i}] {option[i]}")
+
+    stdscr.addstr(13, 0, "Enter your choice: ")
+    stdscr.refresh()
+
+
+def add_student(stdscr, s_list, c_list, m_list, y=y_choice(3)):
+    stdscr.addstr(1, 8, "STUDENT LIST")
     new_s = Student()
-    new_s.set_sid()
-    new_s.set_sname()
-    new_s.set_sdob()
+    new_s.set_sid(stdscr, y)
+    new_s.set_sname(stdscr, y)
+    new_s.set_sdob(stdscr, y)
     # init mark of all student for new course
     for c in c_list:
         new_m = Mark(
@@ -94,24 +198,75 @@ def add_student(s_list, c_list, m_list):
     return s_list, m_list
 
 
-def add_n_student(s_list, c_list, m_list):
+def add_n_student(stdscr, s_list, c_list, m_list):
+    stdscr.refresh()
+    y = y_choice(2)
+    label_mode = 0
     while True:
+        curses_n_item(stdscr, y, label_mode)
         try:
-            times = int(input("""
-[0] Exit
-Enter number of new students: """))
+            times = int(curses_time_item(y, 0))
         except ValueError:
             times = -1
         if times == 0:
             return s_list, m_list
         if times < 0:
-            print("Invalid input!")
+            invalid_n_item(stdscr, y, label_mode)
         else:
             for i in range(times):
-                print(f"\nEnter information for the {ordinal(i + 1)} student: ")
-                s_list, m_list = add_student(s_list, c_list, m_list)
+                curses_ordinal(stdscr, ordinal(i + 1), label_mode)
+                s_list, m_list = add_student(stdscr, s_list, c_list, m_list, y)
             break
     return s_list, m_list
+
+
+def curses_n_item(stdscr, y, label_mode):
+    y -= 1
+    label1 = [
+        "STUDENT LIST"
+    ]
+    label2 = [
+        "Enter number of new students: ",
+    ]
+    stdscr.clear()
+    stdscr.addstr(1, 8, label1[0])
+    stdscr.addstr(3, 0, "[0] Exit")
+    stdscr.addstr(y, 0, label2[label_mode])
+    stdscr.refresh()
+
+
+def curses_time_item(y, label_mode):
+    y -= 1
+    label = [
+        "Enter number of new students: ",
+    ]
+    win = curses.newwin(1, 30, y, len(label[label_mode]))
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    select = box.gather()
+    return select
+
+
+def invalid_n_item(stdscr, y, label_mode):
+    y -= 1
+    label = [
+        "Enter number of new students: "
+    ]
+    stdscr.addstr(y, 0, label[label_mode], curses.color_pair(1))
+    stdscr.refresh()
+    time.sleep(.1)
+
+
+def curses_ordinal(stdscr, oordinal, mode):
+    label = [
+        f"Enter information for the {oordinal} student: ",
+    ]
+    for i in range(50):
+        stdscr.addstr(7, i, " ")
+    stdscr.addstr(7, 0, label[mode])
+    stdscr.refresh()
 
 
 def ordinal(n: int):
@@ -122,8 +277,8 @@ def ordinal(n: int):
     return str(n) + suffix
 
 
-def del_student(s_list, m_list):
-    s_select = print_list_get_element(s_list, 0, True)
+def del_student(stdscr, s_list, m_list):
+    s_select = print_list_get_element(stdscr, s_list, 0, True)
     if s_select == 0:
         return s_list, m_list
     s_index = s_select - 1
@@ -138,12 +293,12 @@ def del_student(s_list, m_list):
     s_list[s_index].remove_list_sid(sid)
 
     del s_list[s_index]
-    list_no_element(s_list, 0)
+    list_no_element(stdscr, s_list, 0)
     return s_list, m_list
 
 
-def print_list_get_element(the_list: list, mode, get: bool):
-    if list_no_element(the_list, mode):
+def print_list_get_element(stdscr, the_list: list, mode, get: bool):
+    if list_no_element(stdscr, the_list, mode):
         return 0
     label1 = [
         "STUDENT LIST",
@@ -154,12 +309,12 @@ def print_list_get_element(the_list: list, mode, get: bool):
         get_course_name_id
     ]
     if get:
-        return get_element_true(the_list, mode, label1, func1)
+        return get_element_true(stdscr, the_list, mode, label1, func1)
     else:
-        get_element_false(the_list, mode, label1, func1)
+        get_element_false(stdscr, the_list, mode, label1, func1)
 
 
-def list_no_element(the_list, mode):
+def list_no_element(stdscr, the_list, mode):
     num_element = len(the_list)
     label1 = [
         "student in the class",
@@ -184,7 +339,7 @@ def get_course_name_id(c_list, c_index):
     return f"{the_name} (ID: {the_id})"
 
 
-def get_element_true(the_list, mode, label1, func1):
+def get_element_true(stdscr, the_list, mode, label1, func1):
     num_element = len(the_list)
     while True:
         print(f"""
@@ -205,7 +360,7 @@ def get_element_true(the_list, mode, label1, func1):
             print("Invalid option!")
 
 
-def get_element_false(the_list, mode, label1, func1):
+def get_element_false(stdscr, the_list, mode, label1, func1):
     num_element = len(the_list)
     label2 = [
         "students",
@@ -222,7 +377,7 @@ def get_element_false(the_list, mode, label1, func1):
     return
 
 
-def del_n_student(s_list, m_list):
+def del_n_student(stdscr, s_list, m_list):
     while True:
         try:
             times = int(input("""
@@ -237,12 +392,12 @@ Enter number of students to be deleted: """))
         else:
             for i in range(times):
                 print(f"The {ordinal(i + 1)} student to be deleted: ")
-                s_list = del_student(s_list, m_list)
+                s_list = del_student(stdscr, s_list, m_list)
             break
     return s_list, m_list
 
 
-def del_all_elements(the_list, mode):
+def del_all_elements(stdscr, the_list, mode):
     key = "yesyesyes"
     label1 = [
         "STUDENTS IN THE CLASS",
@@ -260,7 +415,7 @@ def del_all_elements(the_list, mode):
         if answer == "0":
             return the_list
         if answer == key:
-            list_no_element(the_list, mode)
+            list_no_element(stdscr, the_list, mode)
             match mode:
                 case 0:
                     delete = Student()
@@ -274,8 +429,8 @@ def del_all_elements(the_list, mode):
         print("Invalid input!")
 
 
-def view_update_student(s_list, c_list, m_list):
-    s_select = print_list_get_element(s_list, 0, True)
+def view_update_student(stdscr, s_list, c_list, m_list):
+    s_select = print_list_get_element(stdscr, s_list, 0, True)
     if s_select == 0:
         return s_list, c_list, m_list
     s_index = s_select - 1
@@ -286,13 +441,14 @@ def view_update_student(s_list, c_list, m_list):
 
         print(f"""
         SELECTED STUDENT
+        
     Student:            {get_student_name_id(s_list, s_index)}
     DOB (YYYY-MM-DD):   {s_list[s_index].get_sdob()}
     GPA:                {s_list[s_index].get_gpa(c_list, m_list)}
     Total credits:      {sum_cre}
     Course mark:
 """)
-        print_s_mark(s_list, s_index, c_list, m_list)
+        print_s_mark(stdscr, s_list, s_index, c_list, m_list)
 
         print("""[0] Exit
 [1] Change name
@@ -307,16 +463,16 @@ def view_update_student(s_list, c_list, m_list):
             case 0:
                 return s_list, c_list, m_list
             case 1:
-                s_list[s_index].set_sname()
+                s_list[s_index].set_sname(stdscr)
             case 2:
-                s_list[s_index].set_sdob()
+                s_list[s_index].set_sdob(stdscr)
             case 3:
-                s_list, c_list, m_list = course(s_list, c_list, m_list)
+                s_list, c_list, m_list = course(stdscr, s_list, c_list, m_list)
             case _:
                 print("Invalid option!")
 
 
-def print_s_mark(s_list, s_index, c_list, m_list):
+def print_s_mark(stdscr, s_list, s_index, c_list, m_list):
     sid = s_list[s_index].get_sid()
     s_mark = [m for m in m_list if m.get_msid() == sid]
     for c in c_list:
@@ -326,7 +482,7 @@ def print_s_mark(s_list, s_index, c_list, m_list):
         print(f"{cname} (ID: {cid}): {mark}")
 
 
-def course(s_list, c_list, m_list):
+def course(stdscr, s_list, c_list, m_list):
     while True:
         print(f"""
         COURSE LIST
@@ -345,22 +501,22 @@ def course(s_list, c_list, m_list):
             case 0:
                 return s_list, c_list, m_list
             case 1:
-                c_list, m_list = add_course(s_list, c_list, m_list)
+                c_list, m_list = add_course(stdscr, s_list, c_list, m_list)
             case 2:
-                c_list, m_list = del_course(c_list, m_list)
+                c_list, m_list = del_course(stdscr, c_list, m_list)
             case 3:
-                c_list, m_list = view_update_course(s_list, c_list, m_list)
+                c_list, m_list = view_update_course(stdscr, s_list, c_list, m_list)
             case 4:
-                print_list_get_element(c_list, 1, False)
+                print_list_get_element(stdscr, c_list, 1, False)
             case _:
                 print("Invalid option!")
 
 
-def add_course(s_list, c_list, m_list):
+def add_course(stdscr, s_list, c_list, m_list):
     new_c = Course()
-    new_c.set_cid()
-    new_c.set_cname()
-    new_c.set_cre()
+    new_c.set_cid(stdscr)
+    new_c.set_cname(stdscr)
+    new_c.set_cre(stdscr)
     c_list.append(new_c)
     # init mark of all student for new course
     for s in s_list:
@@ -372,13 +528,13 @@ def add_course(s_list, c_list, m_list):
     return c_list, m_list
 
 
-def del_course(c_list, m_list):
-    c_select = print_list_get_element(c_list, 1, True)
+def del_course(stdscr, c_list, m_list):
+    c_select = print_list_get_element(stdscr, c_list, 1, True)
     if c_select == 0:
         return c_list, m_list
     c_index = c_select - 1
 
-    m_list = del_all_mark(c_list, c_index, m_list)
+    m_list = del_all_mark(stdscr, c_list, c_index, m_list)
 
     print(f"Deleted course: {get_course_name_id(c_list, c_index)}.")
     # remove cid from cid list
@@ -389,14 +545,14 @@ def del_course(c_list, m_list):
     return c_list, m_list
 
 
-def del_all_mark(c_list, c_index, m_list):
-    del_all_elements(m_list, 1)
+def del_all_mark(stdscr, c_list, c_index, m_list):
+    del_all_elements(stdscr, m_list, 1)
     cid = c_list[c_index].get_cid()
     return [m for m in m_list if m.get_mcid() != cid]
 
 
-def view_update_course(s_list, c_list, m_list):
-    c_select = print_list_get_element(c_list, 1, True)
+def view_update_course(stdscr, s_list, c_list, m_list):
+    c_select = print_list_get_element(stdscr, c_list, 1, True)
     if c_select == 0:
         return c_list, m_list
     c_index = c_select - 1
@@ -406,7 +562,7 @@ def view_update_course(s_list, c_list, m_list):
         SELECTED COURSE
     Course:             {get_course_name_id(c_list, c_index)}
     Credits:            {c_list[c_index].get_cre()}""")
-        c_mark_status(s_list, c_list, c_index, m_list, 0)
+        c_mark_status(stdscr, s_list, c_list, c_index, m_list, 0)
 
         print("""
 [0] Exit
@@ -422,16 +578,16 @@ def view_update_course(s_list, c_list, m_list):
             case 0:
                 return c_list, m_list
             case 1:
-                c_list[c_index].set_cname()
+                c_list[c_index].set_cname(stdscr)
             case 2:
-                c_list[c_index].set_cre()
+                c_list[c_index].set_cre(stdscr)
             case 3:
-                m_list = update_mark(s_list, c_list, c_index, m_list)
+                m_list = update_mark(stdscr, s_list, c_list, c_index, m_list)
             case _:
                 print("Invalid option!")
 
 
-def c_mark_status(s_list, c_list, c_index, m_list, mode):
+def c_mark_status(stdscr, s_list, c_list, c_index, m_list, mode):
     # get list mark obj of selected course
     cid = c_list[c_index].get_cid()
     c_mark = [m for m in m_list if m.get_mcid() == cid]
@@ -439,12 +595,12 @@ def c_mark_status(s_list, c_list, c_index, m_list, mode):
     print(f"    Student enrolled:   {len(s_list)}\n")
     match mode:
         case 0:
-            c_mark_print_get(s_list, c_mark, False)
+            c_mark_print_get(stdscr, s_list, c_mark, False)
         case 1:
-            return c_mark_print_get(s_list, c_mark, True)
+            return c_mark_print_get(stdscr, s_list, c_mark, True)
 
 
-def c_mark_print_get(s_list, c_mark, mode: bool):
+def c_mark_print_get(stdscr, s_list, c_mark, mode: bool):
     match mode:
         case False:
             for s in s_list:
@@ -470,27 +626,27 @@ def c_mark_print_get(s_list, c_mark, mode: bool):
                     print("Invalid option!\n")
 
 
-def update_mark(s_list, c_list, c_index, m_list):
+def update_mark(stdscr, s_list, c_list, c_index, m_list):
     cid = c_list[c_index].get_cid()
-    if list_no_element(s_list, 0):
+    if list_no_element(stdscr, s_list, 0):
         return m_list
     print("""
         UPDATE MARK
 """)
-    sid = c_mark_status(s_list, c_list, c_index, m_list, 1)
+    sid = c_mark_status(stdscr, s_list, c_list, c_index, m_list, 1)
     if sid == -1:
         return m_list
 
     s_select = next(s for s in s_list if s.get_sid() == sid)
     for m in m_list:
         if m.get_msid() == sid and m.get_mcid() == cid:
-            m.set_mval()
+            m.set_mval(stdscr)
     print(f"Updated mark of {s_select.get_sname()}")
 
     return m_list
 
 
-def quick(s_list, c_list, m_list):
+def quick(stdscr, s_list, c_list, m_list):
     while True:
         print("""
         QUICK OPTIONS
@@ -517,27 +673,27 @@ def quick(s_list, c_list, m_list):
             case 0:
                 return s_list, c_list, m_list
             case 1:
-                s_list, m_list = add_student(s_list, c_list, m_list)
+                s_list, m_list = add_student(stdscr, s_list, c_list, m_list)
             case 2:
-                s_list, m_list = add_n_student(s_list, c_list, m_list)
+                s_list, m_list = add_n_student(stdscr, s_list, c_list, m_list)
             case 3:
-                c_list, m_list = add_course(s_list, c_list, m_list)
+                c_list, m_list = add_course(stdscr, s_list, c_list, m_list)
             case 4:
-                c_select = print_list_get_element(c_list, 1, True)
+                c_select = print_list_get_element(stdscr, c_list, 1, True)
                 if c_select == 0:
                     return c_list
                 c_index = c_select - 1
 
-                m_list = update_mark(s_list, c_list, c_index, m_list)
+                m_list = update_mark(stdscr, s_list, c_list, c_index, m_list)
             case 5:
-                print_list_get_element(c_list, 1, False)
+                print_list_get_element(stdscr, c_list, 1, False)
             case 6:
-                print_list_get_element(s_list, 0, False)
+                print_list_get_element(stdscr, s_list, 0, False)
             case 7:
-                c_list, m_list = view_update_course(s_list, c_list, m_list)
+                c_list, m_list = view_update_course(stdscr, s_list, c_list, m_list)
             case 8:
                 obj = Student()
-                obj.get_list_gpa_desc(s_list, c_list, m_list)
+                obj.get_list_gpa_desc(stdscr, s_list, c_list, m_list)
             case _:
                 print("Invalid option!")
 
@@ -558,13 +714,21 @@ class Student:
         self.__gpa: float = self.__default_gpa
 
     # getters
-    def get_list_sid(self):
+    def get_list_sid(self, stdscr):
         if len(self.__list_sid) == 0:
-            print("No student id used yet!")
+            # print("No student id used yet!")
+            stdscr.addstr(14, 0, "No student id used yet!", curses.color_pair(1))
             return
-        print("Used student ids: " + str(self.__list_sid))
+        # print("Used student ids: " + str(self.__list_sid))
+        stdscr.addstr(14, 0, "Used student ids: ", curses.color_pair(2))
+        for i in range(len(self.__list_sid)):
+            if i < 10:
+                stdscr.addstr(15 + i, 0, self.__list_sid[i])
+            else:
+                stdscr.addstr(15 + i - 10, 25, self.__list_sid[i])
+        stdscr.refresh()
 
-    def get_list_gpa_desc(self, s_list, c_list, m_list):
+    def get_list_gpa_desc(self, stdscr, s_list, c_list, m_list):
         print("    Student list sorted by GPA descending:")
         list_gpa = []
         if len(self.__list_sid) == 0:
@@ -599,16 +763,22 @@ class Student:
     def delete_list_sid(self):
         self.__list_sid.clear()
 
-    def set_sid(self):
+    def set_sid(self, stdscr, y):
         while True:
             try:
-                self.get_list_sid()
-                sid = input("Enter student id: ")
+                # blank
+                for i in range(50):
+                    for j in range(y, 14):
+                        stdscr.addstr(j, i, " ")
+                self.get_list_sid(stdscr)
+                stdscr.addstr(y, 0, "Enter student id: ")
+                stdscr.refresh()
+                sid = ask_sid(y)
                 if not sid:
-                    print("\nStudent id cannot be blank!")
+                    stdscr.addstr(y+1, 0, "Student id cannot be blank!", curses.color_pair(1))
                     raise ValueError
                 if sid in self.__list_sid:
-                    print(f"\nID existed, try another one!")
+                    stdscr.addstr(y+1, 0, "ID existed, try another one!", curses.color_pair(1))
                     raise ValueError
                 self.append_list_sid(sid)
                 break
@@ -616,26 +786,49 @@ class Student:
                 pass
         self.__sid = sid
 
-    def set_sname(self):
-        sname = input("Enter student name: ")
+    def set_sname(self, stdscr, y):
+        # blank
+        for i in range(50):
+            for j in range(y+1, y+2):
+                stdscr.addstr(j, i, " ")
+
+        stdscr.addstr(y+1, 0, "Enter student name: ")
+        stdscr.refresh()
+        sname = ask_sname(y+1)
         if not sname:
             sname = self.__default_sname
+            stdscr.addstr(y+1, 20, self.__default_sname)
+            stdscr.refresh()
         self.__sname = sname
 
-    def set_sdob(self):
+    def set_sdob(self, stdscr, y):
         while True:
             try:
-                print("Enter student birthday: ")
-                y = input("\tYear: ")
-                m = input("\tMonth: ")
-                d = input("\tDay: ")
-                if not y and not m and not d:
+                # blank
+                for i in range(50):
+                    for j in range(y+2, y+6):
+                        stdscr.addstr(j, i, " ")
+                stdscr.refresh()
+
+                stdscr.addstr(y+2, 0, "Enter student birthday: ")
+                stdscr.addstr(y+3, 4, "Year: ")
+                stdscr.addstr(y+4, 4, "Month: ")
+                stdscr.addstr(y+5, 4, "Day: ")
+                stdscr.refresh()
+                year, month, day = ask_ymd(y+3)
+                if not year and not month and not day:
                     sdob = self.__default_sdob
                     break
-                sdob = date(int(y), int(m), int(d))
+                sdob = date(int(year), int(month), int(day))
                 break
             except ValueError as ve:
-                print(f"\nInvalid input: {ve}!")
+                # blank
+                for i in range(50):
+                    for j in range(y + 6, y + 8):
+                        stdscr.addstr(j, i, " ")
+                stdscr.refresh()
+                stdscr.addstr(y+6, 0, f"Invalid input: {ve}!", curses.color_pair(1))
+                stdscr.refresh()
         self.__sdob = sdob
 
     def update_smark(self, c_list, m_list):
@@ -665,6 +858,50 @@ class Student:
             self.__gpa = math.floor(np.sum(numpy_smark * numpy_cre) / sum_cre * 10) / 10
 
 
+def ask_sid(y):
+    win = curses.newwin(1, 11, y, 18)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    sid = box.gather()
+    return sid
+
+
+def ask_sname(y):
+    win = curses.newwin(1, 11, y, 20)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    sname = box.gather()
+    return sname
+
+
+def ask_ymd(y):
+    win = curses.newwin(1, 5, y, 10)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    year = box.gather()
+
+    win = curses.newwin(1, 3, y+1, 11)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    month = box.gather()
+
+    win = curses.newwin(1, 3, y+2, 9)
+    box = Textbox(win)
+    curses.curs_set(1)
+    box.edit()
+    curses.curs_set(0)
+    day = box.gather()
+    return year, month, day
+
+
 class Course:
     __list_cid: list = []
     __sum_cre: int = 0
@@ -678,7 +915,7 @@ class Course:
         self.__cre = self.__default_cre
 
     # getters
-    def get_list_cid(self):
+    def get_list_cid(self, stdscr):
         if len(self.__list_cid) == 0:
             print("No course id used yet!")
             return
@@ -706,10 +943,10 @@ class Course:
     def remove_list_cid(self, cid):
         self.__list_cid.remove(cid)
 
-    def set_cid(self):
+    def set_cid(self, stdscr):
         while True:
             try:
-                self.get_list_cid()
+                self.get_list_cid(stdscr)
                 cid = input("Enter course id: ")
                 if not cid:
                     print("\nCourse id cannot be blank!")
@@ -723,13 +960,13 @@ class Course:
                 pass
         self.__cid = cid
 
-    def set_cname(self):
+    def set_cname(self, stdscr):
         cname = input("Enter course name: ")
         if not cname:
             cname = self.__default_cname
         self.__cname = cname
 
-    def set_cre(self):
+    def set_cre(self, stdscr):
         while True:
             try:
                 cre = input("Enter credit value: ")
@@ -762,7 +999,7 @@ class Mark:
         return self.__mval
 
     # setters
-    def set_mval(self):
+    def set_mval(self, stdscr):
         while True:
             try:
                 mval = input("Enter new mark (scale 20): ")
@@ -779,22 +1016,26 @@ class Mark:
                 print("Invalid option!\n")
 
 
-def main():
+def main(stdscr):
+    curses.use_default_colors()
+    curses.curs_set(0)
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    curses.init_pair(2, curses.COLOR_GREEN, -1)
+
+    test_screen(stdscr)
+
     # init
     s_list = []
     c_list = []
     m_list = []
 
-    try:
-        s_list, c_list, m_list = home(s_list, c_list, m_list)
-
-    except EOFError as e:
-        print(e)
+    s_list, c_list, m_list = home(stdscr, s_list, c_list, m_list)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        wrapper(main)
     except KeyboardInterrupt:
-        print("\n\nForced to exit using keyboard!")
-        sys.exit(0)
+        print("\033[91m" + "\n\nForced to exit using keyboard!" + "\033[0m")
+    except EOFError as e:
+        print(e)

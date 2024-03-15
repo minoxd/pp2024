@@ -14,21 +14,22 @@ def test_screen(stdscr):
             pad = curses.newpad(20, 50)
             stdscr.refresh()
 
-            for i in range(999):
-                pad.addstr(" ")
+            for i in range(111):
+                pad.addstr("abcdefgh ")
 
-            for i in range(50):
+            while True:
+
                 stdscr.clear()
                 stdscr.refresh()
-                pad.refresh(0, 0, 0, 0, 0 + i, 0 + i)
-                time.sleep(.0001)
+                pad.refresh(0, i, 0, 0, 20, 50)
+                time.sleep(.1)
             stdscr.getch()
             break
         except curses.error:
             stdscr.clear()
             stdscr.refresh()
             curses.init_pair(1, curses.COLOR_RED, -1)
-            stdscr.addstr("Please make your window larger!", curses.color_pair(1))
+            stdscr.addstr("Error", curses.color_pair(1))
             stdscr.getch()
 
 
