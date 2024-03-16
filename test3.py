@@ -9,12 +9,12 @@ warn = []
 
 
 def test_screen(stdscr):
-    stdscr.clear()
-    for i in range(19):
+    stdscr.addstr(14, 0, "Used student ids:          ", curses.color_pair(2))
+    for i in range(len(self.__list_sid)):
         if i < 10:
-            stdscr.addstr(i, 0, str(i+1))
+            stdscr.addstr(15 + i, 0, self.__list_sid[i])
         else:
-            stdscr.addstr(i - 10, 25, str(i + 1))
+            stdscr.addstr(15 + i - 10, 25, self.__list_sid[i])
     stdscr.refresh()
     stdscr.getch()
 
