@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../fast_pw_1_9/.idea/fast_pw_1_9.iml" filepath="$PROJECT_DIR$/../fast_pw_1_9/.idea/fast_pw_1_9.iml" />
       <module fileurl="file://$USER_HOME$/Downloads/pp2023-main/.idea/pp2023-main.iml" filepath="$USER_HOME$/Downloads/pp2023-main/.idea/pp2023-main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pp2024.iml" filepath="$PROJECT_DIR$/.idea/pp2024.iml" />
     </modules>

@@ -118,6 +118,8 @@ def y_choice(y_mode):
             y = 6
         case 3:  # no_select
             y = 3
+        case 4:
+            y = 9
         case _:
             y = -1
     return y
@@ -552,18 +554,13 @@ def print_s_mark(stdscr, s_list, s_index, c_list, m_list):
 
 
 def course(stdscr, s_list, c_list, m_list):
+    stdscr.clear()
+    stdscr.refresh()
+    y = y_choice(4)
     while True:
-        print(f"""
-        COURSE LIST
-
-[0] Exit
-[1] Add a new course
-[2] Delete a course
-[3] View/Update an existing course
-[4] List all courses
-""")
+        curses_course(stdscr)
         try:
-            select = int(input("Enter your choice: "))
+            select = int(ask_menu_choice(y))
         except ValueError:
             select = -1
         match select:
@@ -578,7 +575,24 @@ def course(stdscr, s_list, c_list, m_list):
             case 4:
                 print_list_get_element(stdscr, c_list, 1, False)
             case _:
-                print("Invalid option!")
+                invalid_choice(stdscr, y)
+
+
+def curses_course(stdscr):
+    option = [
+        "Exit",
+        "Add a new course",
+        "Delete a course",
+        "View/Update an existing course",
+        "List all courses"
+    ]
+    stdscr.clear()
+    stdscr.addstr(1, 8, "COURSE LIST")
+    for i in range(5):
+        stdscr.addstr(3 + i, 0, f"[{i}] {option[i]}")
+
+    stdscr.addstr(9, 0, "Enter your choice: ")
+    stdscr.refresh()
 
 
 def add_course(stdscr, s_list, c_list, m_list):

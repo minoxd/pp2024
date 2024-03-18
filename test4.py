@@ -33,21 +33,17 @@ def student(stdscr, s_list, c_list, m_list):
                 invalid_choice(stdscr, y)
 
 
-def curses_student(stdscr):
+def curses_course(stdscr):
     option = [
         "Exit",
-        "Add a new student",
-        "Add multiple students",
-        "Delete a student",
-        "Delete multiple students",
-        "Delete all",
-        "View/Update an existing student",
-        "List all students",
-        "Sort student by GPA descending",
+        "Add a new course",
+        "Delete a course",
+        "View/Update an existing course",
+        "List all courses"
     ]
     stdscr.clear()
     stdscr.addstr(1, 8, "STUDENT LIST")
-    for i in range(9):
+    for i in range(5):
         stdscr.addstr(3 + i, 0, f"[{i}] {option[i]}")
 
     stdscr.addstr(13, 0, "Enter your choice: ")
