@@ -11,6 +11,8 @@ warn = []
 def test_screen(stdscr):
     stdscr.clear()
     stdscr.addstr(0, 0, "Hello World!")
+    stdscr.addstr(1, 0, "Hello World!", curses.A_BOLD)
+    stdscr.addstr(2, 0, "Hello World!", curses.A_ITALIC)
     stdscr.refresh()
     curses.nl()
     stdscr.getch()
